@@ -24,7 +24,7 @@ class AgendaEvent {
 
   final TextStyle subtitleStyle;
 
-  final Function(
+  final Widget Function(
           AgendaEvent event, BuildContext context, double height, double width)?
       builder;
 
