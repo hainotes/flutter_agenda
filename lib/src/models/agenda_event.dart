@@ -24,6 +24,10 @@ class AgendaEvent {
 
   final TextStyle subtitleStyle;
 
+  final Function(
+          AgendaEvent event, BuildContext context, double height, double width)?
+      builder;
+
   AgendaEvent({
     required this.title,
     this.subtitle: "",
@@ -38,5 +42,6 @@ class AgendaEvent {
         color: Color(0xFF535353), fontSize: 11, fontWeight: FontWeight.w400),
     this.subtitleStyle:
         const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF363636)),
+    this.builder,
   }) : assert(end.isAfter(start));
 }

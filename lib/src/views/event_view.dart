@@ -44,17 +44,35 @@ class EventView extends StatelessWidget {
                     ))),
             padding: event.padding,
             margin: event.margin,
-            child: (Utils.eventText)(
-              event,
-              context,
-              math.max(
-                  0.0, height() - (event.padding.top) - (event.padding.bottom)),
-              math.max(
-                  0.0,
-                  agendaStyle.pillarWidth -
-                      (event.padding.left) -
-                      (event.padding.right)),
-            ),
+            child: event.builder != null
+                ? event.builder!(
+                    event,
+                    context,
+                    math.max(
+                        0.0,
+                        height() -
+                            (event.padding.top) -
+                            (event.padding.bottom)),
+                    math.max(
+                        0.0,
+                        agendaStyle.pillarWidth -
+                            (event.padding.left) -
+                            (event.padding.right)),
+                  )
+                : (Utils.eventText)(
+                    event,
+                    context,
+                    math.max(
+                        0.0,
+                        height() -
+                            (event.padding.top) -
+                            (event.padding.bottom)),
+                    math.max(
+                        0.0,
+                        agendaStyle.pillarWidth -
+                            (event.padding.left) -
+                            (event.padding.right)),
+                  ),
           ),
         ),
       ),
