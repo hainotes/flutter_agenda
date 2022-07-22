@@ -52,8 +52,8 @@ class Utils {
         _addLeadingZero(day);
   }
 
-  static String hourFormatter(int hour, int minute) {
-    return _addLeadingZero(hour) + ':' + _addLeadingZero(minute);
+  static String hourFormatter(int hour, int minute, BuildContext context) {
+    return TimeOfDay(hour: hour, minute: minute).format(context);
   }
 
   static String minFormatter(int minute) {
@@ -68,10 +68,11 @@ class Utils {
   ) {
     List<TextSpan> text = [
       TextSpan(
-        text: Utils.hourFormatter(event.start.hour, event.start.minute) +
-            ' - ' +
-            Utils.hourFormatter(event.end.hour, event.end.minute) +
-            ' ',
+        text:
+            Utils.hourFormatter(event.start.hour, event.start.minute, context) +
+                ' - ' +
+                Utils.hourFormatter(event.end.hour, event.end.minute, context) +
+                ' ',
       ),
       TextSpan(
         text: event.title + " ",

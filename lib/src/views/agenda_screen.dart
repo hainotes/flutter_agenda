@@ -244,7 +244,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                           padding:
                               EdgeInsets.symmetric(vertical: 2, horizontal: 5),
                           child: Text(
-                            Utils.hourFormatter(hour, 0),
+                            Utils.hourFormatter(hour, 0, context),
                             style: widget.agendaStyle.timeItemTextStyle
                                 .copyWith(
                                     color: widget.agendaStyle.timeItemTextColor,
@@ -256,7 +256,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                           padding:
                               EdgeInsets.symmetric(vertical: 2, horizontal: 5),
                           child: Text(
-                            Utils.hourFormatter(hour, 30),
+                            Utils.hourFormatter(hour, 30, context),
                             style: widget.agendaStyle.timeItemTextStyle
                                 .copyWith(
                                     color:
@@ -278,7 +278,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                               padding: EdgeInsets.symmetric(
                                   vertical: 2, horizontal: 5),
                               child: Text(
-                                Utils.hourFormatter(hour, 0),
+                                Utils.hourFormatter(hour, 0, context),
                                 style: widget.agendaStyle.timeItemTextStyle
                                     .copyWith(
                                         color: widget
@@ -303,7 +303,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                               padding: EdgeInsets.symmetric(
                                   vertical: 2, horizontal: 5),
                               child: Text(
-                                Utils.hourFormatter(hour, 30),
+                                Utils.hourFormatter(hour, 30, context),
                                 style: widget.agendaStyle.timeItemTextStyle
                                     .copyWith(
                                         color: widget
@@ -331,7 +331,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                       : Padding(
                           padding: const EdgeInsets.all(5.0),
                           child: Text(
-                            Utils.hourFormatter(hour, 0),
+                            Utils.hourFormatter(hour, 0, context),
                             style: widget.agendaStyle.timeItemTextStyle
                                 .copyWith(
                                     color: widget.agendaStyle.timeItemTextColor,
