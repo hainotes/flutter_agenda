@@ -38,7 +38,7 @@ class EventView extends StatelessWidget {
                     color: event.backgroundColor,
                     border: Border(
                       left: BorderSide(
-                          color: event.backgroundColor,
+                          color: event.borderColor,
                           width: agendaStyle.eventBorderWidth),
                       bottom: BorderSide(color: Color(0xFFBCBCBC)),
                     ))),

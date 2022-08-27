@@ -30,6 +30,8 @@ class AgendaEvent {
 
   final TextStyle subtitleStyle;
 
+  final Color borderColor;
+
   final Widget Function(
           AgendaEvent event, BuildContext context, double height, double width)?
       builder;
@@ -44,6 +46,7 @@ class AgendaEvent {
     this.onTap,
     this.decoration,
     this.backgroundColor: const Color(0xFF323D6C),
+    this.borderColor: const Color(0xFF323D6C),
     this.textStyle: defaultTextStyle,
     this.subtitleStyle: defaultSubtitleStyle,
     this.builder,
