@@ -35,7 +35,7 @@ class EventView extends StatelessWidget {
           child: Container(
             decoration: event.decoration ??
                 (BoxDecoration(
-                    color: event.backgroundColor.withOpacity(0.38),
+                    color: event.backgroundColor,
                     border: Border(
                       left: BorderSide(
                           color: event.backgroundColor,
