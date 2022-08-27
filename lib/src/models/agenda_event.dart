@@ -5,8 +5,8 @@ class AgendaEvent {
   static const defaultTextStyle = const TextStyle(
       color: Color(0xFF535353), fontSize: 11, fontWeight: FontWeight.w400);
 
-  static const defaultSubtitleStyle =
-      const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF363636));
+  static const defaultSubtitleStyle = const TextStyle(
+      color: Color(0xFF363636), fontSize: 11, fontWeight: FontWeight.w800);
 
   final String title;
 
