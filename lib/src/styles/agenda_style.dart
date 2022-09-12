@@ -37,6 +37,7 @@ class AgendaStyle {
     this.eventBorderWidth: 4,
     this.visibleTimeBorder: true,
     this.visibleDecorationBorder: true,
+    this.cornerBuilder,
   });
 
   final TextDirection direction;
@@ -139,5 +140,5 @@ class AgendaStyle {
   /// visible decoration border
   final bool visibleDecorationBorder;
 
-  final Widget? Function()? cornerBuilder = null;
+  final Widget? Function()? cornerBuilder;
 }
