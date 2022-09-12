@@ -151,6 +151,9 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                             .withOpacity(0.4),
                       )),
           ),
+          child: widget.agendaStyle.cornerBuilder != null
+              ? widget.agendaStyle.cornerBuilder!()
+              : null,
         ),
       ),
     );
