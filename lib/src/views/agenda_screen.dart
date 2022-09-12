@@ -152,7 +152,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                       )),
           ),
           child: widget.agendaStyle.cornerBuilder != null
-              ? widget.agendaStyle.cornerBuilder!()
+              ? widget.agendaStyle.cornerBuilder!(context)
               : null,
         ),
       ),

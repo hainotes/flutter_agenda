@@ -140,5 +140,5 @@ class AgendaStyle {
   /// visible decoration border
   final bool visibleDecorationBorder;
 
-  final Widget? Function()? cornerBuilder;
+  final Widget? Function(BuildContext context)? cornerBuilder;
 }
