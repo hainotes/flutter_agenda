@@ -251,7 +251,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                             style: widget.agendaStyle.timeItemTextStyle
                                 .copyWith(
                                     color: widget.agendaStyle.timeItemTextColor,
-                                    fontWeight: FontWeight.w600),
+                                    fontWeight: FontWeight.bold),
                             textAlign: TextAlign.right,
                           ),
                         ),
@@ -286,7 +286,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                                     .copyWith(
                                         color: widget
                                             .agendaStyle.timeItemTextColor,
-                                        fontWeight: FontWeight.w600),
+                                        fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.right,
                               ),
                             ),
@@ -338,7 +338,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                             style: widget.agendaStyle.timeItemTextStyle
                                 .copyWith(
                                     color: widget.agendaStyle.timeItemTextColor,
-                                    fontWeight: FontWeight.w600),
+                                    fontWeight: FontWeight.bold),
                             textAlign: TextAlign.right,
                           ),
                         ),
