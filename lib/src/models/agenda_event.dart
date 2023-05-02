@@ -38,17 +38,17 @@ class AgendaEvent {
 
   AgendaEvent({
     required this.title,
-    this.subtitle: "",
+    this.subtitle = "",
     required this.start,
     required this.end,
-    this.padding: const EdgeInsets.all(10),
+    this.padding = const EdgeInsets.all(10),
     this.margin,
     this.onTap,
     this.decoration,
-    this.backgroundColor: const Color(0xFF323D6C),
-    this.borderColor: const Color(0xFF323D6C),
-    this.textStyle: defaultTextStyle,
-    this.subtitleStyle: defaultSubtitleStyle,
+    this.backgroundColor = const Color(0xFF323D6C),
+    this.borderColor = const Color(0xFF323D6C),
+    this.textStyle = defaultTextStyle,
+    this.subtitleStyle = defaultSubtitleStyle,
     this.builder,
   }) : assert(end.isAfter(start));
 }

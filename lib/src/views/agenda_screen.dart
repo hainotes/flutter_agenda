@@ -14,7 +14,7 @@ class FlutterAgenda extends StatefulWidget {
     Key? key,
     required this.resources,
     this.onTap,
-    this.agendaStyle: const AgendaStyle(),
+    this.agendaStyle = const AgendaStyle(),
   }) : super(key: key);
 
   /// list of pillar Object:
@@ -352,8 +352,8 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
   Widget _buildHeaders(BuildContext context) {
     return Container(
       alignment: widget.agendaStyle.direction == TextDirection.rtl
-          ? Alignment.topLeft
-          : Alignment.topRight,
+          ? Alignment.topRight
+          : Alignment.topLeft,
       decoration: BoxDecoration(
         color: widget.agendaStyle.pillarColor,
         border: !widget.agendaStyle.headBottomBorder
