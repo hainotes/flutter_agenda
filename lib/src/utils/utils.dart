@@ -10,25 +10,23 @@ class Utils {
         target.day == date.day;
   }
 
-  static double pillarWidth(int lenght, double timeWidth, double defaultWidth,
-      Orientation orientation) {
-    MediaQueryData mediaData =
-        MediaQueryData.fromWindow(WidgetsBinding.instance.window);
-    double screenWidth = mediaData.size.width;
+  static double pillarWidth(BuildContext context, int length, double timeWidth,
+      double defaultWidth, Orientation orientation) {
+    double screenWidth = MediaQuery.of(context).size.width;
     switch (orientation) {
       case Orientation.portrait:
-        if (screenWidth < 480 && lenght < 4) {
-          return (screenWidth - timeWidth) / lenght;
-        } else if (lenght < 8) {
-          return (screenWidth - timeWidth) / lenght;
+        if (screenWidth < 480 && length < 4) {
+          return (screenWidth - timeWidth) / length;
+        } else if (length < 8) {
+          return (screenWidth - timeWidth) / length;
         } else {
           return defaultWidth;
         }
       case Orientation.landscape:
-        if (screenWidth < 480 && lenght < 6) {
-          return (screenWidth - timeWidth) / lenght;
-        } else if (lenght < 12) {
-          return (screenWidth - timeWidth) / lenght;
+        if (screenWidth < 480 && length < 6) {
+          return (screenWidth - timeWidth) / length;
+        } else if (length < 12) {
+          return (screenWidth - timeWidth) / length;
         } else {
           return defaultWidth;
         }

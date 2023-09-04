@@ -179,7 +179,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
           children: widget.resources.map((pillar) {
             return PillarView(
               headObject: pillar.head.object,
-              lenght: widget.resources.length,
+              length: widget.resources.length,
               scrollController: _verticalScrollControllers[
                   widget.resources.indexOf(pillar) + 1],
               events: pillar.events,
@@ -381,13 +381,16 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
             return GestureDetector(
               onTap: () => pillar.head.onTap,
               child: Container(
-                width: widget.agendaStyle.fittedWidth
-                    ? Utils.pillarWidth(
-                        widget.resources.length,
-                        widget.agendaStyle.timeItemWidth,
-                        widget.agendaStyle.pillarWidth,
-                        MediaQuery.of(context).orientation)
-                    : widget.agendaStyle.pillarWidth,
+                width: pillar.width > 0
+                    ? pillar.width.toDouble()
+                    : widget.agendaStyle.fittedWidth
+                        ? Utils.pillarWidth(
+                            context,
+                            widget.resources.length,
+                            widget.agendaStyle.timeItemWidth,
+                            widget.agendaStyle.pillarWidth,
+                            MediaQuery.of(context).orientation)
+                        : widget.agendaStyle.pillarWidth,
                 height: pillar.head.height,
                 decoration: BoxDecoration(
                   color: pillar.head.backgroundColor,

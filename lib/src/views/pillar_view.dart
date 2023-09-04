@@ -7,7 +7,7 @@ import 'package:flutter_agenda/src/views/event_view.dart';
 class PillarView extends StatelessWidget {
   final dynamic headObject;
   final List<AgendaEvent> events;
-  final int lenght;
+  final int length;
   final ScrollController scrollController;
   final AgendaStyle agendaStyle;
   final Function(EventTime, dynamic)? callBack;
@@ -16,7 +16,7 @@ class PillarView extends StatelessWidget {
     Key? key,
     required this.headObject,
     required this.events,
-    required this.lenght,
+    required this.length,
     required this.scrollController,
     required this.agendaStyle,
     this.callBack,
@@ -35,7 +35,7 @@ class PillarView extends StatelessWidget {
         child: Container(
           height: height(),
           width: agendaStyle.fittedWidth
-              ? Utils.pillarWidth(lenght, agendaStyle.timeItemWidth,
+              ? Utils.pillarWidth(context, length, agendaStyle.timeItemWidth,
                   agendaStyle.pillarWidth, MediaQuery.of(context).orientation)
               : agendaStyle.pillarWidth,
           decoration: agendaStyle.pillarSeperator
@@ -56,7 +56,7 @@ class PillarView extends StatelessWidget {
               ...events.map((event) {
                 return EventView(
                   event: event,
-                  lenght: lenght,
+                  length: length,
                   agendaStyle: agendaStyle,
                 );
               }).toList(),

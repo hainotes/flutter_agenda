@@ -8,13 +8,13 @@ import 'package:flutter_agenda/src/utils/utils.dart';
 
 class EventView extends StatelessWidget {
   final AgendaEvent event;
-  final int lenght;
+  final int length;
   final AgendaStyle agendaStyle;
 
   const EventView({
     Key? key,
     required this.event,
-    required this.lenght,
+    required this.length,
     required this.agendaStyle,
   }) : super(key: key);
 
@@ -25,7 +25,7 @@ class EventView extends StatelessWidget {
       height: height(),
       left: 0,
       width: agendaStyle.fittedWidth
-          ? Utils.pillarWidth(lenght, agendaStyle.timeItemWidth,
+          ? Utils.pillarWidth(context, length, agendaStyle.timeItemWidth,
               agendaStyle.pillarWidth, MediaQuery.of(context).orientation)
           : agendaStyle.pillarWidth,
       child: GestureDetector(
