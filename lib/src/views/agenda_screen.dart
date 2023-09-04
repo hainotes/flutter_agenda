@@ -185,6 +185,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
               events: pillar.events,
               callBack: (p0, p1) => widget.onTap!(p0, p1),
               agendaStyle: widget.agendaStyle,
+              width: pillar.width,
             );
           }).toList(),
         ),
@@ -381,8 +382,8 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
             return GestureDetector(
               onTap: () => pillar.head.onTap,
               child: Container(
-                width: pillar.width > 0
-                    ? pillar.width.toDouble()
+                width: pillar.width > 0.0
+                    ? pillar.width
                     : widget.agendaStyle.fittedWidth
                         ? Utils.pillarWidth(
                             context,

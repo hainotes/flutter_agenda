@@ -10,11 +10,11 @@ class Resource {
   /// [events] (appointments/Todos) linked to the head.
   final List<AgendaEvent> events;
 
-  final int width;
+  final double width;
 
   Resource({
     required this.head,
     required this.events,
-    this.width = 0,
+    this.width = 0.0,
   });
 }

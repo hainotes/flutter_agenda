@@ -11,6 +11,7 @@ class PillarView extends StatelessWidget {
   final ScrollController scrollController;
   final AgendaStyle agendaStyle;
   final Function(EventTime, dynamic)? callBack;
+  final double width;
 
   PillarView({
     Key? key,
@@ -20,6 +21,7 @@ class PillarView extends StatelessWidget {
     required this.scrollController,
     required this.agendaStyle,
     this.callBack,
+    this.width = 0.0,
   }) : super(key: key);
 
   @override
@@ -34,10 +36,16 @@ class PillarView extends StatelessWidget {
             headObject),
         child: Container(
           height: height(),
-          width: agendaStyle.fittedWidth
-              ? Utils.pillarWidth(context, length, agendaStyle.timeItemWidth,
-                  agendaStyle.pillarWidth, MediaQuery.of(context).orientation)
-              : agendaStyle.pillarWidth,
+          width: width > 0.0
+              ? width
+              : agendaStyle.fittedWidth
+                  ? Utils.pillarWidth(
+                      context,
+                      length,
+                      agendaStyle.timeItemWidth,
+                      agendaStyle.pillarWidth,
+                      MediaQuery.of(context).orientation)
+                  : agendaStyle.pillarWidth,
           decoration: agendaStyle.pillarSeperator
               ? BoxDecoration(
                   border: Border(left: BorderSide(color: Color(0xFFCECECE))))
@@ -58,6 +66,7 @@ class PillarView extends StatelessWidget {
                   event: event,
                   length: length,
                   agendaStyle: agendaStyle,
+                  width: width,
                 );
               }).toList(),
             ],

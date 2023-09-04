@@ -10,12 +10,14 @@ class EventView extends StatelessWidget {
   final AgendaEvent event;
   final int length;
   final AgendaStyle agendaStyle;
+  final double width;
 
   const EventView({
     Key? key,
     required this.event,
     required this.length,
     required this.agendaStyle,
+    this.width = 0.0,
   }) : super(key: key);
 
   @override
@@ -24,10 +26,12 @@ class EventView extends StatelessWidget {
       top: top(),
       height: height(),
       left: 0,
-      width: agendaStyle.fittedWidth
-          ? Utils.pillarWidth(context, length, agendaStyle.timeItemWidth,
-              agendaStyle.pillarWidth, MediaQuery.of(context).orientation)
-          : agendaStyle.pillarWidth,
+      width: width > 0.0
+          ? width
+          : agendaStyle.fittedWidth
+              ? Utils.pillarWidth(context, length, agendaStyle.timeItemWidth,
+                  agendaStyle.pillarWidth, MediaQuery.of(context).orientation)
+              : agendaStyle.pillarWidth,
       child: GestureDetector(
         onTap: event.onTap,
         child: ClipRRect(
