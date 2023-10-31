@@ -79,7 +79,17 @@ class PillarView extends StatelessWidget {
   EventTime tappedHour(double tapPosition, double itemHeight, int startHour) {
     double hourCount = (tapPosition / itemHeight);
     int hour = (startHour + hourCount.floor());
-    int minute = hourCount - hourCount.floor() >= 0.5 ? 30 : 0;
+    double minuteCount = hourCount - hourCount.floor();
+    int minute;
+    if (minuteCount >= 0.75) {
+      minute = 45;
+    } else if (minuteCount >= 0.5) {
+      minute = 30;
+    } else if (minuteCount >= 0.25) {
+      minute = 15;
+    } else {
+      minute = 0;
+    }
     return EventTime(hour: hour, minute: minute);
   }
 
