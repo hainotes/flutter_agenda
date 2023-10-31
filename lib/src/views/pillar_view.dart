@@ -4,7 +4,7 @@ import 'package:flutter_agenda/src/styles/background_painter.dart';
 import 'package:flutter_agenda/src/utils/utils.dart';
 import 'package:flutter_agenda/src/views/event_view.dart';
 
-class PillarView extends StatelessWidget {
+class PillarView extends StatefulWidget {
   final dynamic headObject;
   final List<AgendaEvent> events;
   final int length;
@@ -25,28 +25,44 @@ class PillarView extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<PillarView> createState() => _PillarViewState();
+}
+
+class _PillarViewState extends State<PillarView> {
+  int _tapDownTime = 0;
+  EventTime? _tappedHour;
+  dynamic _tappedObject;
+
+  @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      controller: scrollController,
+      controller: widget.scrollController,
       physics: ClampingScrollPhysics(),
       child: GestureDetector(
-        onTapDown: (tapdetails) => callBack!(
-            tappedHour(tapdetails.localPosition.dy, agendaStyle.timeSlot.height,
-                agendaStyle.startHour),
-            headObject),
+        onTapDown: (tapdetails) {
+          _tappedHour = tappedHour(tapdetails.localPosition.dy,
+              widget.agendaStyle.timeSlot.height, widget.agendaStyle.startHour);
+          _tappedObject = widget.headObject;
+          _tapDownTime = DateTime.now().millisecondsSinceEpoch;
+        },
+        onTap: () {
+          if (DateTime.now().millisecondsSinceEpoch - _tapDownTime < 250) {
+            widget.callBack?.call(_tappedHour!, _tappedObject);
+          }
+        },
         child: Container(
           height: height(),
-          width: width > 0.0
-              ? width
-              : agendaStyle.fittedWidth
+          width: widget.width > 0.0
+              ? widget.width
+              : widget.agendaStyle.fittedWidth
                   ? Utils.pillarWidth(
                       context,
-                      length,
-                      agendaStyle.timeItemWidth,
-                      agendaStyle.pillarWidth,
+                      widget.length,
+                      widget.agendaStyle.timeItemWidth,
+                      widget.agendaStyle.pillarWidth,
                       MediaQuery.of(context).orientation)
-                  : agendaStyle.pillarWidth,
-          decoration: agendaStyle.pillarSeperator
+                  : widget.agendaStyle.pillarWidth,
+          decoration: widget.agendaStyle.pillarSeperator
               ? BoxDecoration(
                   border: Border(left: BorderSide(color: Color(0xFFCECECE))))
               : BoxDecoration(),
@@ -56,17 +72,17 @@ class PillarView extends StatelessWidget {
                 Positioned.fill(
                   child: CustomPaint(
                     painter: BackgroundPainter(
-                      agendaStyle: agendaStyle,
+                      agendaStyle: widget.agendaStyle,
                     ),
                   ),
                 )
               ],
-              ...events.map((event) {
+              ...widget.events.map((event) {
                 return EventView(
                   event: event,
-                  length: length,
-                  agendaStyle: agendaStyle,
-                  width: width,
+                  length: widget.length,
+                  agendaStyle: widget.agendaStyle,
+                  width: widget.width,
                 );
               }).toList(),
             ],
@@ -94,7 +110,7 @@ class PillarView extends StatelessWidget {
   }
 
   double height() {
-    return (agendaStyle.endHour - agendaStyle.startHour) *
-        agendaStyle.timeSlot.height;
+    return (widget.agendaStyle.endHour - widget.agendaStyle.startHour) *
+        widget.agendaStyle.timeSlot.height;
   }
 }
