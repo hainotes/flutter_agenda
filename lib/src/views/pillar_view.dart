@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_agenda/flutter_agenda.dart';
 import 'package:flutter_agenda/src/styles/background_painter.dart';
@@ -32,6 +34,25 @@ class _PillarViewState extends State<PillarView> {
   int _tapDownTime = 0;
   EventTime? _tappedHour;
   dynamic _tappedObject;
+  Timer? _currentTimeMarkerTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.agendaStyle.visibleCurrentTimeMarker) {
+      _currentTimeMarkerTimer = Timer.periodic(Duration(seconds: 60), (timer) {
+        setState(() {});
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_currentTimeMarkerTimer != null) {
+      _currentTimeMarkerTimer!.cancel();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
