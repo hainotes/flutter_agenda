@@ -110,18 +110,19 @@ class _PillarViewState extends State<PillarView> {
                 );
               }).toList(),
               ...[
-                Positioned.fill(
-                  child: ValueListenableBuilder(
+                if (widget.headObject == null)
+                  ValueListenableBuilder(
                     valueListenable: _currentTimeMarkerNotifier,
                     builder: (context, value, child) {
-                      return CustomPaint(
-                        painter: CurrentTimeMarkerPainter(
-                          agendaStyle: widget.agendaStyle,
+                      return Positioned.fill(
+                        child: CustomPaint(
+                          painter: CurrentTimeMarkerPainter(
+                            agendaStyle: widget.agendaStyle,
+                          ),
                         ),
                       );
                     },
                   ),
-                ),
               ],
             ],
           ),
