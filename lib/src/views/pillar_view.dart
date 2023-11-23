@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_agenda/flutter_agenda.dart';
 import 'package:flutter_agenda/src/styles/background_painter.dart';
+import 'package:flutter_agenda/src/styles/current_time_marker_painter.dart';
 import 'package:flutter_agenda/src/utils/utils.dart';
 import 'package:flutter_agenda/src/views/event_view.dart';
 
@@ -35,13 +36,14 @@ class _PillarViewState extends State<PillarView> {
   EventTime? _tappedHour;
   dynamic _tappedObject;
   Timer? _currentTimeMarkerTimer;
+  final ValueNotifier<int> _currentTimeMarkerNotifier = ValueNotifier<int>(0);
 
   @override
   void initState() {
     super.initState();
     if (widget.agendaStyle.visibleCurrentTimeMarker) {
       _currentTimeMarkerTimer = Timer.periodic(Duration(seconds: 60), (timer) {
-        setState(() {});
+        _currentTimeMarkerNotifier.value += 1;
       });
     }
   }
@@ -51,6 +53,7 @@ class _PillarViewState extends State<PillarView> {
     if (_currentTimeMarkerTimer != null) {
       _currentTimeMarkerTimer!.cancel();
     }
+    _currentTimeMarkerNotifier.dispose();
     super.dispose();
   }
 
@@ -106,6 +109,20 @@ class _PillarViewState extends State<PillarView> {
                   width: widget.width,
                 );
               }).toList(),
+              ...[
+                Positioned.fill(
+                  child: ValueListenableBuilder(
+                    valueListenable: _currentTimeMarkerNotifier,
+                    builder: (context, value, child) {
+                      return CustomPaint(
+                        painter: CurrentTimeMarkerPainter(
+                          agendaStyle: widget.agendaStyle,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ],
           ),
         ),
