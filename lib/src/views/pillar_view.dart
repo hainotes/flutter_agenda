@@ -110,7 +110,7 @@ class _PillarViewState extends State<PillarView> {
                 );
               }).toList(),
               ...[
-                if (widget.headObject == null)
+                if (widget.headObject != null)
                   ValueListenableBuilder(
                     valueListenable: _currentTimeMarkerNotifier,
                     builder: (context, value, child) {
