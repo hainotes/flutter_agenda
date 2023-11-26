@@ -50,6 +50,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
   late ScrollController _headerScrollController;
   late ScrollController _bodyScrollController;
   Timer? _autoScrollTimer;
+  double _clientHeight = 0.0;
 
   @override
   void initState() {
@@ -68,11 +69,8 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
       _verticalScrollControllers.add(_verticalScrollLinker.addAndGet());
     }
     if (widget.agendaStyle.autoScrollToCurrentTime) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      _autoScrollTimer = Timer.periodic(Duration(minutes: 1), (timer) {
         _scrollToCurrentTime();
-        _autoScrollTimer = Timer.periodic(Duration(minutes: 1), (timer) {
-          _scrollToCurrentTime();
-        });
       });
     }
   }
@@ -117,6 +115,14 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.agendaStyle.autoScrollToCurrentTime) {
+      if (_clientHeight != MediaQuery.of(context).size.height) {
+        _clientHeight = MediaQuery.of(context).size.height;
+        Future.delayed(Duration(milliseconds: 1000), () {
+          _scrollToCurrentTime();
+        });
+      }
+    }
     return Directionality(
       textDirection: widget.agendaStyle.direction,
       child: Stack(
