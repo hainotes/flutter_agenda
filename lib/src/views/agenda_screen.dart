@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_agenda/flutter_agenda.dart';
@@ -48,6 +49,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
   // horizontal (header, body) scroll controllers
   late ScrollController _headerScrollController;
   late ScrollController _bodyScrollController;
+  Timer? _autoScrollTimer;
 
   @override
   void initState() {
@@ -65,11 +67,22 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
     for (int i = 0; i < widget.resources.length; i++) {
       _verticalScrollControllers.add(_verticalScrollLinker.addAndGet());
     }
+    if (widget.agendaStyle.autoScrollToCurrentTime) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToCurrentTime();
+        _autoScrollTimer = Timer.periodic(Duration(minutes: 1), (timer) {
+          _scrollToCurrentTime();
+        });
+      });
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
+    if (_autoScrollTimer != null) {
+      _autoScrollTimer!.cancel();
+    }
     // disposing the vetical scrollers
     for (var i = 0; i < _verticalScrollControllers.length; i++) {
       _verticalScrollControllers[i].dispose();
@@ -481,5 +494,23 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
         ),
       ),
     );
+  }
+
+  void _scrollToCurrentTime() {
+    final totalHours =
+        widget.agendaStyle.endHour - widget.agendaStyle.startHour;
+    final totalSeconds = totalHours * 3600;
+    final now = DateTime.now();
+    final nowSeconds =
+        ((now.hour - widget.agendaStyle.startHour) * 3600) + (now.minute * 60);
+    final agendaHeight = widget.agendaStyle.timeSlot.height * totalHours;
+    final currentTimeOffset = agendaHeight * (nowSeconds / totalSeconds);
+    final visibleHeight = MediaQuery.of(context).size.height -
+        widget.agendaStyle.headerHeight -
+        widget.agendaStyle.timeSlot.height;
+    if ((_verticalScrollLinker.offset + visibleHeight) < currentTimeOffset ||
+        _verticalScrollLinker.offset > currentTimeOffset) {
+      _verticalScrollLinker.jumpTo(currentTimeOffset - (visibleHeight / 2));
+    }
   }
 }

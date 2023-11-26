@@ -205,7 +205,7 @@ class AgendaScreenState extends State<AgendaScreen> {
                 resources: resources,
                 agendaStyle: AgendaStyle(
                   startHour: 9,
-                  endHour: 20,
+                  endHour: 23,
                   headerLogo: HeaderLogo.bar,
                   fittedWidth: false,
                   timeItemWidth: 45,
@@ -213,6 +213,8 @@ class AgendaScreenState extends State<AgendaScreen> {
                   pillarSeperator: true,
                   visibleTimeBorder: true,
                   visibleDecorationBorder: true,
+                  autoScrollToCurrentTime: true,
+                  visibleCurrentTimeMarker: true,
                 ),
                 // the click else where (other than an event because it has it's own onTap parameter)
                 // you get the object linked to the head object of the pillar which could be you project costume object

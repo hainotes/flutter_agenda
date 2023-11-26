@@ -16,7 +16,7 @@ class CurrentTimeMarkerPainter extends CustomPainter {
       final now = DateTime.now();
       final nowSeconds =
           ((now.hour - agendaStyle.startHour) * 3600) + (now.minute * 60);
-      double topOffset = size.height * (nowSeconds / totalSeconds);
+      final topOffset = size.height * (nowSeconds / totalSeconds);
       final paint = Paint()
         ..color = Colors.redAccent
         ..strokeWidth = 2.0;

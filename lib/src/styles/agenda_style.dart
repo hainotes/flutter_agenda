@@ -39,6 +39,7 @@ class AgendaStyle {
     this.visibleDecorationBorder = true,
     this.cornerBuilder,
     this.visibleCurrentTimeMarker = true,
+    this.autoScrollToCurrentTime = false,
   });
 
   final TextDirection direction;
@@ -144,4 +145,6 @@ class AgendaStyle {
   final Widget? Function(BuildContext context)? cornerBuilder;
 
   final bool visibleCurrentTimeMarker;
+
+  final bool autoScrollToCurrentTime;
 }
