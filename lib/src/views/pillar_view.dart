@@ -106,17 +106,7 @@ class _PillarViewState extends State<PillarView> {
                       agendaStyle: widget.agendaStyle,
                     ),
                   ),
-                )
-              ],
-              ...widget.events.map((event) {
-                return EventView(
-                  event: event,
-                  length: widget.length,
-                  agendaStyle: widget.agendaStyle,
-                  width: widget.width,
-                );
-              }).toList(),
-              ...[
+                ),
                 if (widget.headObject != null)
                   ValueListenableBuilder(
                     valueListenable: _currentTimeMarkerNotifier,
@@ -131,6 +121,14 @@ class _PillarViewState extends State<PillarView> {
                     },
                   ),
               ],
+              ...widget.events.map((event) {
+                return EventView(
+                  event: event,
+                  length: widget.length,
+                  agendaStyle: widget.agendaStyle,
+                  width: widget.width,
+                );
+              }).toList(),
             ],
           ),
         ),
