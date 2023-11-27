@@ -14,6 +14,7 @@ class PillarView extends StatefulWidget {
   final ScrollController scrollController;
   final AgendaStyle agendaStyle;
   final Function(EventTime, dynamic)? callBack;
+  final Function(EventTime, dynamic)? longCallBack;
   final double width;
 
   PillarView({
@@ -24,6 +25,7 @@ class PillarView extends StatefulWidget {
     required this.scrollController,
     required this.agendaStyle,
     this.callBack,
+    this.longCallBack,
     this.width = 0.0,
   }) : super(key: key);
 
@@ -72,6 +74,11 @@ class _PillarViewState extends State<PillarView> {
         onTap: () {
           if (DateTime.now().millisecondsSinceEpoch - _tapDownTime < 250) {
             widget.callBack?.call(_tappedHour!, _tappedObject);
+          }
+        },
+        onLongPress: () {
+          if (_tappedHour != null) {
+            widget.longCallBack?.call(_tappedHour!, _tappedObject);
           }
         },
         child: Container(

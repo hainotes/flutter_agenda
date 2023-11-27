@@ -15,6 +15,7 @@ class FlutterAgenda extends StatefulWidget {
     Key? key,
     required this.resources,
     this.onTap,
+    this.onLongPress,
     this.agendaStyle = const AgendaStyle(),
   }) : super(key: key);
 
@@ -32,6 +33,8 @@ class FlutterAgenda extends StatefulWidget {
   /// the dynamic object is the object you passed to the head object.
   /// it could be one of your won project custom resource object.
   final Function(EventTime, dynamic)? onTap;
+
+  final Function(EventTime, dynamic)? onLongPress;
 
   /// if you want to customize the view more
   final AgendaStyle agendaStyle;
@@ -203,6 +206,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                   widget.resources.indexOf(pillar) + 1],
               events: pillar.events,
               callBack: (p0, p1) => widget.onTap!(p0, p1),
+              longCallBack: (p0, p1) => widget.onLongPress!(p0, p1),
               agendaStyle: widget.agendaStyle,
               width: pillar.width,
             );
