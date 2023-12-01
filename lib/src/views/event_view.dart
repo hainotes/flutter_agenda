@@ -25,13 +25,8 @@ class EventView extends StatelessWidget {
     return Positioned(
       top: top(),
       height: height(),
-      left: 0,
-      width: width > 0.0
-          ? width
-          : agendaStyle.fittedWidth
-              ? Utils.pillarWidth(context, length, agendaStyle.timeItemWidth,
-                  agendaStyle.pillarWidth, MediaQuery.of(context).orientation)
-              : agendaStyle.pillarWidth,
+      left: event.left,
+      width: event.width,
       child: GestureDetector(
         onTap: event.onTap,
         child: ClipRRect(

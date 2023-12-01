@@ -213,7 +213,6 @@ class AgendaScreenState extends State<AgendaScreen> {
                   pillarSeperator: true,
                   visibleTimeBorder: true,
                   visibleDecorationBorder: true,
-                  autoScrollToCurrentTime: true,
                   visibleCurrentTimeMarker: true,
                 ),
                 // the click else where (other than an event because it has it's own onTap parameter)

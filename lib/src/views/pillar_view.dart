@@ -61,6 +61,77 @@ class _PillarViewState extends State<PillarView> {
 
   @override
   Widget build(BuildContext context) {
+    final List<List<AgendaEvent>> eventColumns = [];
+    final events = widget.events.toList();
+    events.sort((a, b) {
+      int result = a.start.compareTo(b.start);
+      if (result == 0) {
+        result = a.end.compareTo(b.end);
+      }
+      return result;
+    });
+    for (final event in events) {
+      bool added = false;
+      for (final column in eventColumns) {
+        if (column.isEmpty) {
+          column.add(event);
+          added = true;
+          break;
+        } else {
+          final lastEvent = column.last;
+          if (lastEvent.end.isBefore(event.start) ||
+              lastEvent.end.isAtSameMomentAs(event.start)) {
+            column.add(event);
+            added = true;
+            break;
+          }
+        }
+      }
+      if (!added) {
+        eventColumns.add([event]);
+      }
+    }
+    final width = widget.width > 0.0
+        ? widget.width
+        : widget.agendaStyle.fittedWidth
+            ? Utils.pillarWidth(
+                context,
+                widget.length,
+                widget.agendaStyle.timeItemWidth,
+                widget.agendaStyle.pillarWidth,
+                MediaQuery.of(context).orientation)
+            : widget.agendaStyle.pillarWidth;
+    for (int colIndex = 0; colIndex < eventColumns.length; colIndex++) {
+      final columnWidth = width / eventColumns.length;
+      final column = eventColumns[colIndex];
+      for (final event in column) {
+        event.width = columnWidth;
+        event.left = event.width * colIndex;
+        if (colIndex < (eventColumns.length - 1)) {
+          for (int nextColIndex = colIndex + 1;
+              nextColIndex < eventColumns.length;
+              nextColIndex++) {
+            bool overlap = false;
+            final nextColumn = eventColumns[nextColIndex];
+            for (final nextEvent in nextColumn) {
+              if (event.start.isAtSameMomentAs(nextEvent.start) ||
+                  (event.start.isAfter(nextEvent.start) &&
+                      event.start.isBefore(nextEvent.end)) ||
+                  (event.end.isAfter(nextEvent.start) &&
+                      event.end.isBefore(nextEvent.end)) ||
+                  event.end.isAtSameMomentAs(nextEvent.end)) {
+                overlap = true;
+                break;
+              }
+            }
+            if (overlap) {
+              break;
+            }
+            event.width += columnWidth;
+          }
+        }
+      }
+    }
     return SingleChildScrollView(
       controller: widget.scrollController,
       physics: ClampingScrollPhysics(),

@@ -32,9 +32,16 @@ class AgendaEvent {
 
   final Color borderColor;
 
+  double left = 0.0;
+
+  double width = 0.0;
+
   final Widget Function(
-          AgendaEvent event, BuildContext context, double height, double width)?
-      builder;
+    AgendaEvent event,
+    BuildContext context,
+    double height,
+    double width,
+  )? builder;
 
   AgendaEvent({
     required this.title,
