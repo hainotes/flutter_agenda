@@ -114,7 +114,10 @@ class _PillarViewState extends State<PillarView> {
             bool overlap = false;
             final nextColumn = eventColumns[nextColIndex];
             for (final nextEvent in nextColumn) {
+              // Find overlap between event and nextEvent
               if (event.start.isAtSameMomentAs(nextEvent.start) ||
+                  (event.start.isBefore(nextEvent.start) &&
+                      event.end.isAfter(nextEvent.end)) ||
                   (event.start.isAfter(nextEvent.start) &&
                       event.start.isBefore(nextEvent.end)) ||
                   (event.end.isAfter(nextEvent.start) &&
