@@ -17,12 +17,13 @@ class BackgroundPainter extends CustomPainter {
     );
     final totalHours = agendaStyle.endHour - agendaStyle.startHour;
     if (agendaStyle.visibleTimeBorder) {
+      final paint = Paint()..color = agendaStyle.timelineBorderColor;
       for (int hour = 1; hour < totalHours; hour++) {
         double topOffset = calculateTopOffset(hour);
         canvas.drawLine(
           Offset(0, topOffset),
           Offset(size.width, topOffset),
-          Paint()..color = agendaStyle.timelineBorderColor,
+          paint,
         );
       }
     }

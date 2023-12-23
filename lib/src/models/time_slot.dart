@@ -13,7 +13,7 @@ extension TimeSlotExtension on TimeSlot {
   double get height {
     switch (this) {
       case TimeSlot.full:
-        return 60;
+        return 80;
       case TimeSlot.half:
         return 80;
       case TimeSlot.quarter:

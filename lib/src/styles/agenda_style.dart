@@ -31,7 +31,7 @@ class AgendaStyle {
     this.timeSlot = TimeSlot.half,
     this.headerLogo = HeaderLogo.circle,
     this.timeItemWidth = 70,
-    this.decorationLineHeight = 20,
+    this.decorationLineHeight = 40,
     this.decorationLineDashWidth = 4,
     this.decorationLineDashSpaceWidth = 4,
     this.eventBorderWidth = 4,
