@@ -40,7 +40,6 @@ class AgendaStyle {
     this.cornerBuilder,
     this.visibleCurrentTimeMarker = true,
     this.autoScrollToCurrentTime = false,
-    this.showHourIndicator = false,
   });
 
   final TextDirection direction;
@@ -148,6 +147,4 @@ class AgendaStyle {
   final bool visibleCurrentTimeMarker;
 
   final bool autoScrollToCurrentTime;
-
-  final bool showHourIndicator;
 }

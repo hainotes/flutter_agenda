@@ -39,6 +39,7 @@ class _PillarViewState extends State<PillarView> {
   dynamic _tappedObject;
   Timer? _currentTimeMarkerTimer;
   final ValueNotifier<int> _currentTimeMarkerNotifier = ValueNotifier<int>(0);
+  bool _showHourIndicator = false;
 
   @override
   void initState() {
@@ -138,75 +139,80 @@ class _PillarViewState extends State<PillarView> {
     return SingleChildScrollView(
       controller: widget.scrollController,
       physics: ClampingScrollPhysics(),
-      child: GestureDetector(
-        onTapDown: (tapdetails) {
-          _tappedHour = tappedHour(tapdetails.localPosition.dy,
-              widget.agendaStyle.timeSlot.height, widget.agendaStyle.startHour);
-          _tappedObject = widget.headObject;
-          _tapDownTime = DateTime.now().millisecondsSinceEpoch;
-        },
-        onTap: () {
-          if (DateTime.now().millisecondsSinceEpoch - _tapDownTime < 250) {
-            widget.callBack?.call(_tappedHour!, _tappedObject);
-          }
-        },
-        onLongPress: () {
-          if (_tappedHour != null) {
-            widget.longCallBack?.call(_tappedHour!, _tappedObject);
-          }
-        },
-        child: Container(
-          height: height(),
-          width: widget.width > 0.0
-              ? widget.width
-              : widget.agendaStyle.fittedWidth
-                  ? Utils.pillarWidth(
-                      context,
-                      widget.length,
-                      widget.agendaStyle.timeItemWidth,
-                      widget.agendaStyle.pillarWidth,
-                      MediaQuery.of(context).orientation)
-                  : widget.agendaStyle.pillarWidth,
-          decoration: widget.agendaStyle.pillarSeperator
-              ? BoxDecoration(
-                  border: Border(left: BorderSide(color: Color(0xFFCECECE))))
-              : BoxDecoration(),
-          child: Stack(
-            children: [
-              ...[
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: BackgroundPainter(
-                      agendaStyle: widget.agendaStyle,
-                      context: context,
-                      showHourIndicator: widget.headObject != null &&
-                          widget.agendaStyle.showHourIndicator,
+      child: MouseRegion(
+        onEnter: (event) => setState(() => _showHourIndicator = true),
+        onExit: (event) => setState(() => _showHourIndicator = false),
+        child: GestureDetector(
+          onTapDown: (tapdetails) {
+            _tappedHour = tappedHour(
+                tapdetails.localPosition.dy,
+                widget.agendaStyle.timeSlot.height,
+                widget.agendaStyle.startHour);
+            _tappedObject = widget.headObject;
+            _tapDownTime = DateTime.now().millisecondsSinceEpoch;
+          },
+          onTap: () {
+            if (DateTime.now().millisecondsSinceEpoch - _tapDownTime < 250) {
+              widget.callBack?.call(_tappedHour!, _tappedObject);
+            }
+          },
+          onLongPress: () {
+            if (_tappedHour != null) {
+              widget.longCallBack?.call(_tappedHour!, _tappedObject);
+            }
+          },
+          child: Container(
+            height: height(),
+            width: widget.width > 0.0
+                ? widget.width
+                : widget.agendaStyle.fittedWidth
+                    ? Utils.pillarWidth(
+                        context,
+                        widget.length,
+                        widget.agendaStyle.timeItemWidth,
+                        widget.agendaStyle.pillarWidth,
+                        MediaQuery.of(context).orientation)
+                    : widget.agendaStyle.pillarWidth,
+            decoration: widget.agendaStyle.pillarSeperator
+                ? BoxDecoration(
+                    border: Border(left: BorderSide(color: Color(0xFFCECECE))))
+                : BoxDecoration(),
+            child: Stack(
+              children: [
+                ...[
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: BackgroundPainter(
+                        agendaStyle: widget.agendaStyle,
+                        context: context,
+                        showHourIndicator: _showHourIndicator,
+                      ),
                     ),
                   ),
-                ),
-                if (widget.headObject != null)
-                  ValueListenableBuilder(
-                    valueListenable: _currentTimeMarkerNotifier,
-                    builder: (context, value, child) {
-                      return Positioned.fill(
-                        child: CustomPaint(
-                          painter: CurrentTimeMarkerPainter(
-                            agendaStyle: widget.agendaStyle,
+                  if (widget.headObject != null)
+                    ValueListenableBuilder(
+                      valueListenable: _currentTimeMarkerNotifier,
+                      builder: (context, value, child) {
+                        return Positioned.fill(
+                          child: CustomPaint(
+                            painter: CurrentTimeMarkerPainter(
+                              agendaStyle: widget.agendaStyle,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
+                        );
+                      },
+                    ),
+                ],
+                ...widget.events.map((event) {
+                  return EventView(
+                    event: event,
+                    length: widget.length,
+                    agendaStyle: widget.agendaStyle,
+                    width: widget.width,
+                  );
+                }).toList(),
               ],
-              ...widget.events.map((event) {
-                return EventView(
-                  event: event,
-                  length: widget.length,
-                  agendaStyle: widget.agendaStyle,
-                  width: widget.width,
-                );
-              }).toList(),
-            ],
+            ),
           ),
         ),
       ),
