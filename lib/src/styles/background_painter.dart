@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_agenda/src/models/time_slot.dart';
 import 'package:flutter_agenda/src/styles/agenda_style.dart';
+import 'package:flutter_agenda/src/utils/utils.dart';
 
 class BackgroundPainter extends CustomPainter {
   final AgendaStyle agendaStyle;
+  final BuildContext context;
 
   BackgroundPainter({
     required this.agendaStyle,
+    required this.context,
   });
 
   @override
@@ -25,6 +28,31 @@ class BackgroundPainter extends CustomPainter {
           Offset(size.width, topOffset),
           paint,
         );
+        if (agendaStyle.showHourIndicator) {
+          final hourText = TextSpan(
+            text: Utils.hourFormatter(
+              hour + agendaStyle.startHour,
+              0,
+              context,
+            ),
+            style: TextStyle(
+              color: Colors.black26,
+              fontSize: 8,
+            ),
+          );
+          final textPainter = TextPainter(
+            text: hourText,
+            textDirection: TextDirection.ltr,
+          );
+          textPainter.layout(
+            minWidth: 0,
+            maxWidth: size.width,
+          );
+          textPainter.paint(
+            canvas,
+            Offset((size.width - textPainter.width) / 2, topOffset),
+          );
+        }
       }
     }
 

@@ -178,6 +178,7 @@ class _PillarViewState extends State<PillarView> {
                   child: CustomPaint(
                     painter: BackgroundPainter(
                       agendaStyle: widget.agendaStyle,
+                      context: context,
                     ),
                   ),
                 ),
