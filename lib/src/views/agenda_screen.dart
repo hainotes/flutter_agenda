@@ -262,7 +262,8 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                 ),
                 color: widget.agendaStyle.timelineItemColor,
               ),
-              child: widget.agendaStyle.timeSlot.height == 80
+              child: widget.agendaStyle.timeSlot.height == 80 &&
+                      widget.agendaStyle.timeSlot == TimeSlot.half
                   ? Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.end,
