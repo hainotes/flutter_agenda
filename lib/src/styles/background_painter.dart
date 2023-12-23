@@ -6,10 +6,12 @@ import 'package:flutter_agenda/src/utils/utils.dart';
 class BackgroundPainter extends CustomPainter {
   final AgendaStyle agendaStyle;
   final BuildContext context;
+  final bool showHourIndicator;
 
   BackgroundPainter({
     required this.agendaStyle,
     required this.context,
+    this.showHourIndicator = false,
   });
 
   @override
@@ -28,7 +30,7 @@ class BackgroundPainter extends CustomPainter {
           Offset(size.width, topOffset),
           paint,
         );
-        if (agendaStyle.showHourIndicator) {
+        if (showHourIndicator) {
           final hourText = TextSpan(
             text: Utils.hourFormatter(
               hour + agendaStyle.startHour,
@@ -36,8 +38,9 @@ class BackgroundPainter extends CustomPainter {
               context,
             ),
             style: TextStyle(
-              color: Colors.black26,
-              fontSize: 8,
+              color: Colors.black45,
+              fontSize: 10,
+              fontStyle: FontStyle.italic,
             ),
           );
           final textPainter = TextPainter(

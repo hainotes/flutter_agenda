@@ -179,6 +179,8 @@ class _PillarViewState extends State<PillarView> {
                     painter: BackgroundPainter(
                       agendaStyle: widget.agendaStyle,
                       context: context,
+                      showHourIndicator: widget.headObject != null &&
+                          widget.agendaStyle.showHourIndicator,
                     ),
                   ),
                 ),
