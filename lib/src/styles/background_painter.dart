@@ -93,6 +93,37 @@ class BackgroundPainter extends CustomPainter {
                 ),
                 mouseOverPaint!,
               );
+              if (minuteOffset > 0) {
+                final mouseOverHourText = TextSpan(
+                  text: Utils.hourFormatter(
+                    mouseOverHour.hour,
+                    agendaStyle.timeSlot == TimeSlot.quarter
+                        ? mouseOverHour.minute
+                        : 30,
+                    context,
+                  ),
+                  style: TextStyle(
+                    color: Colors.black45,
+                    fontSize: 10,
+                    fontStyle: FontStyle.italic,
+                  ),
+                );
+                final mouseOverHourTextPainter = TextPainter(
+                  text: mouseOverHourText,
+                  textDirection: TextDirection.ltr,
+                );
+                mouseOverHourTextPainter.layout(
+                  minWidth: 0,
+                  maxWidth: size.width,
+                );
+                mouseOverHourTextPainter.paint(
+                  canvas,
+                  Offset(
+                    (size.width - textPainter.width) / 2,
+                    topOffset + minuteOffset,
+                  ),
+                );
+              }
             }
           }
         }
