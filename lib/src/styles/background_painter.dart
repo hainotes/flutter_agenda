@@ -29,7 +29,7 @@ class BackgroundPainter extends CustomPainter {
       Paint? mouseOverPaint;
       if (showHourIndicator && mouseOverHourCallback != null) {
         mouseOverPaint = Paint()
-          ..color = Colors.purple.withOpacity(0.1)
+          ..color = Colors.purple.withOpacity(0.2)
           ..style = PaintingStyle.fill;
       } else {
         mouseOverPaint = null;
