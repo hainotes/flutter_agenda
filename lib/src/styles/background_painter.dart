@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_agenda/src/models/event_time.dart';
 import 'package:flutter_agenda/src/models/time_slot.dart';
 import 'package:flutter_agenda/src/styles/agenda_style.dart';
 import 'package:flutter_agenda/src/utils/utils.dart';
@@ -7,11 +8,13 @@ class BackgroundPainter extends CustomPainter {
   final AgendaStyle agendaStyle;
   final BuildContext context;
   final bool showHourIndicator;
+  final EventTime? Function()? mouseOverHourCallback;
 
   BackgroundPainter({
     required this.agendaStyle,
     required this.context,
     this.showHourIndicator = false,
+    this.mouseOverHourCallback,
   });
 
   @override
@@ -22,13 +25,21 @@ class BackgroundPainter extends CustomPainter {
     );
     final totalHours = agendaStyle.endHour - agendaStyle.startHour;
     if (agendaStyle.visibleTimeBorder) {
-      final paint = Paint()..color = agendaStyle.timelineBorderColor;
-      for (int hour = 1; hour < totalHours; hour++) {
+      final borderPaint = Paint()..color = agendaStyle.timelineBorderColor;
+      Paint? mouseOverPaint;
+      if (showHourIndicator && mouseOverHourCallback != null) {
+        mouseOverPaint = Paint()
+          ..color = Colors.purple.withOpacity(0.1)
+          ..style = PaintingStyle.fill;
+      } else {
+        mouseOverPaint = null;
+      }
+      for (int hour = 0; hour < totalHours; hour++) {
         double topOffset = calculateTopOffset(hour);
         canvas.drawLine(
           Offset(0, topOffset),
           Offset(size.width, topOffset),
-          paint,
+          borderPaint,
         );
         if (showHourIndicator) {
           final hourText = TextSpan(
@@ -55,15 +66,44 @@ class BackgroundPainter extends CustomPainter {
             canvas,
             Offset((size.width - textPainter.width) / 2, topOffset),
           );
+          if (mouseOverHourCallback != null) {
+            final mouseOverHour = mouseOverHourCallback!();
+            if (mouseOverHour != null &&
+                mouseOverHour.hour == hour + agendaStyle.startHour) {
+              double minuteOffset = 0;
+              if (mouseOverHour.minute > 0) {
+                switch (agendaStyle.timeSlot) {
+                  case TimeSlot.quarter:
+                    minuteOffset = (mouseOverHour.minute / 15) *
+                        agendaStyle.decorationLineHeight;
+                    break;
+                  default:
+                    if (mouseOverHour.minute >= 30) {
+                      minuteOffset = agendaStyle.decorationLineHeight;
+                    }
+                    break;
+                }
+              }
+              canvas.drawRect(
+                Rect.fromLTWH(
+                  0,
+                  topOffset + minuteOffset,
+                  size.width,
+                  agendaStyle.decorationLineHeight,
+                ),
+                mouseOverPaint!,
+              );
+            }
+          }
         }
       }
     }
 
     if (agendaStyle.visibleDecorationBorder) {
       final drawLimit = size.height / agendaStyle.decorationLineHeight;
+      final paint = Paint()..color = agendaStyle.decorationLineBorderColor;
       for (double count = 0; count < drawLimit; count += 1) {
         double topOffset = calculateDecorationLineOffset(count);
-        final paint = Paint()..color = agendaStyle.decorationLineBorderColor;
         final dashWidth = agendaStyle.decorationLineDashWidth;
         final dashSpace = agendaStyle.decorationLineDashSpaceWidth;
         var startX = 0.0;

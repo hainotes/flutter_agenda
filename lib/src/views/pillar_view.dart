@@ -40,6 +40,7 @@ class _PillarViewState extends State<PillarView> {
   Timer? _currentTimeMarkerTimer;
   final ValueNotifier<int> _currentTimeMarkerNotifier = ValueNotifier<int>(0);
   bool _showHourIndicator = false;
+  EventTime? _mouseOverHour;
 
   @override
   void initState() {
@@ -140,8 +141,30 @@ class _PillarViewState extends State<PillarView> {
       controller: widget.scrollController,
       physics: ClampingScrollPhysics(),
       child: MouseRegion(
-        onEnter: (event) => setState(() => _showHourIndicator = true),
-        onExit: (event) => setState(() => _showHourIndicator = false),
+        onEnter: (event) => setState(() {
+          _showHourIndicator = true;
+          _mouseOverHour = tappedHour(
+            event.localPosition.dy,
+            widget.agendaStyle.timeSlot.height,
+            widget.agendaStyle.startHour,
+          );
+        }),
+        onExit: (event) => setState(() {
+          _showHourIndicator = false;
+          _mouseOverHour = null;
+        }),
+        onHover: (event) {
+          final mouseOverHour = tappedHour(
+            event.localPosition.dy,
+            widget.agendaStyle.timeSlot.height,
+            widget.agendaStyle.startHour,
+          );
+          if (_mouseOverHour == null ||
+              mouseOverHour.hour != _mouseOverHour!.hour ||
+              mouseOverHour.minute != _mouseOverHour!.minute) {
+            setState(() => _mouseOverHour = mouseOverHour);
+          }
+        },
         child: GestureDetector(
           onTapDown: (tapdetails) {
             _tappedHour = tappedHour(
@@ -187,6 +210,7 @@ class _PillarViewState extends State<PillarView> {
                         context: context,
                         showHourIndicator:
                             _showHourIndicator && widget.headObject != null,
+                        mouseOverHourCallback: () => _mouseOverHour,
                       ),
                     ),
                   ),
