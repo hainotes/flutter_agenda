@@ -63,7 +63,7 @@ class _PillarViewState extends State<PillarView> {
 
   @override
   Widget build(BuildContext context) {
-    final List<List<AgendaEvent>> eventColumns = [];
+    final List<List<AgendaEvent>> eventRows = [];
     final events = widget.events.toList();
     events.sort((a, b) {
       int result = a.start.compareTo(b.start);
@@ -74,23 +74,30 @@ class _PillarViewState extends State<PillarView> {
     });
     for (final event in events) {
       bool added = false;
-      for (final column in eventColumns) {
-        if (column.isEmpty) {
-          column.add(event);
-          added = true;
-          break;
-        } else {
-          final lastEvent = column.last;
-          if (lastEvent.end.isBefore(event.start) ||
-              lastEvent.end.isAtSameMomentAs(event.start)) {
-            column.add(event);
-            added = true;
+      for (final row in eventRows) {
+        bool overlap = false;
+        for (final rowEvent in row) {
+          // Find overlap between event and rowEvent
+          if (event.start.isAtSameMomentAs(rowEvent.start) ||
+              (event.start.isBefore(rowEvent.start) &&
+                  event.end.isAfter(rowEvent.end)) ||
+              (event.start.isAfter(rowEvent.start) &&
+                  event.start.isBefore(rowEvent.end)) ||
+              (event.end.isAfter(rowEvent.start) &&
+                  event.end.isBefore(rowEvent.end)) ||
+              event.end.isAtSameMomentAs(rowEvent.end)) {
+            overlap = true;
             break;
           }
         }
+        if (overlap) {
+          row.add(event);
+          added = true;
+          break;
+        }
       }
       if (!added) {
-        eventColumns.add([event]);
+        eventRows.add([event]);
       }
     }
     final width = widget.width > 0.0
@@ -103,38 +110,12 @@ class _PillarViewState extends State<PillarView> {
                 widget.agendaStyle.pillarWidth,
                 MediaQuery.of(context).orientation)
             : widget.agendaStyle.pillarWidth;
-    for (int colIndex = 0; colIndex < eventColumns.length; colIndex++) {
-      final columnWidth = width / eventColumns.length;
-      final column = eventColumns[colIndex];
-      for (final event in column) {
-        event.width = columnWidth;
-        event.left = event.width * colIndex;
-        if (colIndex < (eventColumns.length - 1)) {
-          for (int nextColIndex = colIndex + 1;
-              nextColIndex < eventColumns.length;
-              nextColIndex++) {
-            bool overlap = false;
-            final nextColumn = eventColumns[nextColIndex];
-            for (final nextEvent in nextColumn) {
-              // Find overlap between event and nextEvent
-              if (event.start.isAtSameMomentAs(nextEvent.start) ||
-                  (event.start.isBefore(nextEvent.start) &&
-                      event.end.isAfter(nextEvent.end)) ||
-                  (event.start.isAfter(nextEvent.start) &&
-                      event.start.isBefore(nextEvent.end)) ||
-                  (event.end.isAfter(nextEvent.start) &&
-                      event.end.isBefore(nextEvent.end)) ||
-                  event.end.isAtSameMomentAs(nextEvent.end)) {
-                overlap = true;
-                break;
-              }
-            }
-            if (overlap) {
-              break;
-            }
-            event.width += columnWidth;
-          }
-        }
+    for (final row in eventRows) {
+      final eventWidth = width / row.length;
+      for (int i = 0; i < row.length; i++) {
+        final event = row[i];
+        event.left = eventWidth * i;
+        event.width = eventWidth;
       }
     }
     return SingleChildScrollView(
