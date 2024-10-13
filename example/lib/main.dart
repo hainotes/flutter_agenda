@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
 }
 
 class AgendaScreen extends StatefulWidget {
-  const AgendaScreen({Key? key}) : super(key: key);
+  const AgendaScreen({super.key});
 
   @override
   AgendaScreenState createState() => AgendaScreenState();
