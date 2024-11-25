@@ -48,38 +48,38 @@ class AgendaScreenState extends State<AgendaScreen> {
           AgendaEvent(
             title: 'اجتماع Z.',
             subtitle: 'MZ.',
-            start: EventTime(hour: 12, minute: 0),
-            end: EventTime(hour: 13, minute: 20),
+            start: EventTime(hour: 9, minute: 0),
+            end: EventTime(hour: 18, minute: 0),
           ),
         ],
       ),
-      Resource(
-        head: Header(title: 'الموارد 2', object: 2),
-        events: [
-          AgendaEvent(
-            title: 'اجتماع G.',
-            subtitle: 'MG',
-            backgroundColor: Colors.yellowAccent,
-            start: EventTime(hour: 9, minute: 10),
-            end: EventTime(hour: 11, minute: 45),
-          ),
-        ],
-      ),
-      Resource(
-        head: Header(title: 'الموارد 3.', object: 3, color: Colors.yellow),
-        events: [
-          AgendaEvent(
-            title: 'اجتماع أ',
-            subtitle: 'MA',
-            start: EventTime(hour: 10, minute: 10),
-            end: EventTime(hour: 11, minute: 45),
-            onTap: () {
-              // ignore: avoid_print
-              print("meeting A Details");
-            },
-          ),
-        ],
-      ),
+      // Resource(
+      //   head: Header(title: 'الموارد 2', object: 2),
+      //   events: [
+      //     AgendaEvent(
+      //       title: 'اجتماع G.',
+      //       subtitle: 'MG',
+      //       backgroundColor: Colors.yellowAccent,
+      //       start: EventTime(hour: 9, minute: 10),
+      //       end: EventTime(hour: 11, minute: 45),
+      //     ),
+      //   ],
+      // ),
+      // Resource(
+      //   head: Header(title: 'الموارد 3.', object: 3, color: Colors.yellow),
+      //   events: [
+      //     AgendaEvent(
+      //       title: 'اجتماع أ',
+      //       subtitle: 'MA',
+      //       start: EventTime(hour: 10, minute: 10),
+      //       end: EventTime(hour: 11, minute: 45),
+      //       onTap: () {
+      //         // ignore: avoid_print
+      //         print("meeting A Details");
+      //       },
+      //     ),
+      //   ],
+      // ),
     ];
   }
 

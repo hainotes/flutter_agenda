@@ -63,7 +63,7 @@ class _PillarViewState extends State<PillarView> {
 
   @override
   Widget build(BuildContext context) {
-    final List<List<AgendaEvent>> eventRows = [];
+    final List<List<AgendaEvent>> eventCols = [];
     final events = widget.events.toList();
     events.sort((a, b) {
       int result = a.start.compareTo(b.start);
@@ -74,30 +74,22 @@ class _PillarViewState extends State<PillarView> {
     });
     for (final event in events) {
       bool added = false;
-      for (final row in eventRows) {
-        bool overlap = false;
-        for (final rowEvent in row) {
-          // Find overlap between event and rowEvent
-          if (event.start.isAtSameMomentAs(rowEvent.start) ||
-              (event.start.isBefore(rowEvent.start) &&
-                  event.end.isAfter(rowEvent.end)) ||
-              (event.start.isAfter(rowEvent.start) &&
-                  event.start.isBefore(rowEvent.end)) ||
-              (event.end.isAfter(rowEvent.start) &&
-                  event.end.isBefore(rowEvent.end)) ||
-              event.end.isAtSameMomentAs(rowEvent.end)) {
-            overlap = true;
+      for (final col in eventCols) {
+        if (col.isNotEmpty) {
+          final lastEvent = col.last;
+          if (event.start.compareTo(lastEvent.end) >= 0) {
+            col.add(event);
+            added = true;
             break;
           }
-        }
-        if (overlap) {
-          row.add(event);
+        } else {
+          col.add(event);
           added = true;
           break;
         }
       }
       if (!added) {
-        eventRows.add([event]);
+        eventCols.add([event]);
       }
     }
     final width = widget.width > 0.0
@@ -108,14 +100,24 @@ class _PillarViewState extends State<PillarView> {
                 widget.length,
                 widget.agendaStyle.timeItemWidth,
                 widget.agendaStyle.pillarWidth,
-                MediaQuery.of(context).orientation)
+                MediaQuery.of(context).orientation,
+              )
             : widget.agendaStyle.pillarWidth;
-    for (final row in eventRows) {
-      final eventWidth = width / row.length;
-      for (int i = 0; i < row.length; i++) {
-        final event = row[i];
-        event.left = eventWidth * i;
-        event.width = eventWidth;
+    for (int colIndex = 0; colIndex < eventCols.length; colIndex++) {
+      final col = eventCols[colIndex];
+      final eventWidth = width / eventCols.length;
+      final eventLeft = colIndex * eventWidth;
+      for (final e in col) {
+        e.left = eventLeft;
+        e.width = eventWidth;
+        // Extend width if there are no overlapping events in next columns
+        for (int nextColIndex = colIndex + 1; nextColIndex < eventCols.length; nextColIndex++) {
+          final nextCol = eventCols[colIndex + 1];
+          if (nextCol.every((nextEvent) =>
+              nextEvent.start.compareTo(e.end) >= 0 || nextEvent.end.compareTo(e.start) <= 0)) {
+            e.width += eventWidth;
+          }
+        }
       }
     }
     return SingleChildScrollView(
@@ -148,10 +150,8 @@ class _PillarViewState extends State<PillarView> {
         },
         child: GestureDetector(
           onTapDown: (tapdetails) {
-            _tappedHour = tappedHour(
-                tapdetails.localPosition.dy,
-                widget.agendaStyle.timeSlot.height,
-                widget.agendaStyle.startHour);
+            _tappedHour = tappedHour(tapdetails.localPosition.dy,
+                widget.agendaStyle.timeSlot.height, widget.agendaStyle.startHour);
             _tappedObject = widget.headObject;
             _tapDownTime = DateTime.now().millisecondsSinceEpoch;
           },
@@ -170,16 +170,11 @@ class _PillarViewState extends State<PillarView> {
             width: widget.width > 0.0
                 ? widget.width
                 : widget.agendaStyle.fittedWidth
-                    ? Utils.pillarWidth(
-                        context,
-                        widget.length,
-                        widget.agendaStyle.timeItemWidth,
-                        widget.agendaStyle.pillarWidth,
-                        MediaQuery.of(context).orientation)
+                    ? Utils.pillarWidth(context, widget.length, widget.agendaStyle.timeItemWidth,
+                        widget.agendaStyle.pillarWidth, MediaQuery.of(context).orientation)
                     : widget.agendaStyle.pillarWidth,
             decoration: widget.agendaStyle.pillarSeperator
-                ? BoxDecoration(
-                    border: Border(left: BorderSide(color: Color(0xFFCECECE))))
+                ? BoxDecoration(border: Border(left: BorderSide(color: Color(0xFFCECECE))))
                 : BoxDecoration(),
             child: Stack(
               children: [
@@ -189,8 +184,7 @@ class _PillarViewState extends State<PillarView> {
                       painter: BackgroundPainter(
                         agendaStyle: widget.agendaStyle,
                         context: context,
-                        showHourIndicator:
-                            _showHourIndicator && widget.headObject != null,
+                        showHourIndicator: _showHourIndicator && widget.headObject != null,
                         mouseOverHourCallback: () => _mouseOverHour,
                       ),
                     ),
