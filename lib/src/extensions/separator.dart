@@ -8,7 +8,7 @@ extension Seperator on Iterable<Widget> {
       widgets.add(Divider(
         thickness: 1,
         height: 1,
-        color: color.withOpacity(0.25),
+        color: color.withValues(alpha: 0.25),
       ));
     });
     widgets.removeLast();

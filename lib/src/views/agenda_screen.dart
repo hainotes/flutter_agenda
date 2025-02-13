@@ -157,20 +157,20 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                     ? BorderSide.none
                     : BorderSide(
                         color: widget.agendaStyle.timelineBorderColor
-                            .withOpacity(0.4),
+                            .withValues(alpha: 0.4),
                       ),
                 left: (!widget.agendaStyle.cornerRight &&
                         widget.agendaStyle.direction != TextDirection.ltr)
                     ? BorderSide.none
                     : BorderSide(
                         color: widget.agendaStyle.timelineBorderColor
-                            .withOpacity(0.4),
+                            .withValues(alpha: 0.4),
                       ),
                 bottom: !widget.agendaStyle.cornerBottom
                     ? BorderSide.none
                     : BorderSide(
                         color: widget.agendaStyle.timelineBorderColor
-                            .withOpacity(0.4),
+                            .withValues(alpha: 0.4),
                       )),
           ),
           child: widget.agendaStyle.cornerBuilder != null
@@ -229,12 +229,12 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
           right: widget.agendaStyle.direction == TextDirection.ltr
               ? BorderSide(
                   color:
-                      widget.agendaStyle.timelineBorderColor.withOpacity(0.5))
+                      widget.agendaStyle.timelineBorderColor.withValues(alpha: 0.5))
               : BorderSide.none,
           left: widget.agendaStyle.direction == TextDirection.rtl
               ? BorderSide(
                   color:
-                      widget.agendaStyle.timelineBorderColor.withOpacity(0.5))
+                      widget.agendaStyle.timelineBorderColor.withValues(alpha: 0.5))
               : BorderSide.none,
         ),
       ),
@@ -256,7 +256,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                 border: Border(
                   top: BorderSide(
                     color:
-                        widget.agendaStyle.timelineBorderColor.withOpacity(0.8),
+                        widget.agendaStyle.timelineBorderColor.withValues(alpha: 0.8),
                     width: 0.8,
                   ),
                 ),
@@ -386,7 +386,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
             : Border(
                 bottom: BorderSide(
                     color: widget.agendaStyle.timelineBorderColor
-                        .withOpacity(0.4))),
+                        .withValues(alpha: 0.4))),
       ),
       height: widget.agendaStyle.headerHeight,
       padding: EdgeInsets.only(
@@ -436,7 +436,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                         child: widget.agendaStyle.headerLogo ==
                                 HeaderLogo.circle
                             ? Material(
-                                color: pillar.head.color.withOpacity(0.5),
+                                color: pillar.head.color.withValues(alpha: 0.5),
                                 borderRadius: BorderRadius.circular(50),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(50),
