@@ -98,19 +98,13 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
   @override
   void didUpdateWidget(covariant FlutterAgenda oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.resources.length + 1 > _verticalScrollControllers.length) {
-      for (int i = 0;
-          i <=
-              (widget.resources.length + 1) - _verticalScrollControllers.length;
-          i++) {
+    final verticalControllersLength = _verticalScrollControllers.length;
+    if (widget.resources.length + 1 > verticalControllersLength) {
+      for (int i = 0; i <= (widget.resources.length + 1) - verticalControllersLength; i++) {
         _verticalScrollControllers.add(_verticalScrollLinker.addAndGet());
       }
-    } else if (widget.resources.length + 1 <
-        _verticalScrollControllers.length) {
-      for (int i = 0;
-          i <=
-              _verticalScrollControllers.length - (widget.resources.length + 1);
-          i++) {
+    } else if (widget.resources.length + 1 < verticalControllersLength) {
+      for (int i = 0; i <= verticalControllersLength - (widget.resources.length + 1); i++) {
         _verticalScrollControllers.removeLast();
       }
     }
@@ -152,30 +146,23 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
           decoration: BoxDecoration(
             color: widget.agendaStyle.cornerColor,
             border: Border(
-                right: (!widget.agendaStyle.cornerRight &&
-                        widget.agendaStyle.direction != TextDirection.rtl)
+                right: (!widget.agendaStyle.cornerRight && widget.agendaStyle.direction != TextDirection.rtl)
                     ? BorderSide.none
                     : BorderSide(
-                        color: widget.agendaStyle.timelineBorderColor
-                            .withValues(alpha: 0.4),
+                        color: widget.agendaStyle.timelineBorderColor.withValues(alpha: 0.4),
                       ),
-                left: (!widget.agendaStyle.cornerRight &&
-                        widget.agendaStyle.direction != TextDirection.ltr)
+                left: (!widget.agendaStyle.cornerRight && widget.agendaStyle.direction != TextDirection.ltr)
                     ? BorderSide.none
                     : BorderSide(
-                        color: widget.agendaStyle.timelineBorderColor
-                            .withValues(alpha: 0.4),
+                        color: widget.agendaStyle.timelineBorderColor.withValues(alpha: 0.4),
                       ),
                 bottom: !widget.agendaStyle.cornerBottom
                     ? BorderSide.none
                     : BorderSide(
-                        color: widget.agendaStyle.timelineBorderColor
-                            .withValues(alpha: 0.4),
+                        color: widget.agendaStyle.timelineBorderColor.withValues(alpha: 0.4),
                       )),
           ),
-          child: widget.agendaStyle.cornerBuilder != null
-              ? widget.agendaStyle.cornerBuilder!(context)
-              : null,
+          child: widget.agendaStyle.cornerBuilder != null ? widget.agendaStyle.cornerBuilder!(context) : null,
         ),
       ),
     );
@@ -184,12 +171,8 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
   Widget _buildMainContent(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-        left: widget.agendaStyle.direction == TextDirection.ltr
-            ? widget.agendaStyle.timeItemWidth
-            : 0,
-        right: widget.agendaStyle.direction == TextDirection.rtl
-            ? widget.agendaStyle.timeItemWidth
-            : 0,
+        left: widget.agendaStyle.direction == TextDirection.ltr ? widget.agendaStyle.timeItemWidth : 0,
+        right: widget.agendaStyle.direction == TextDirection.rtl ? widget.agendaStyle.timeItemWidth : 0,
         top: widget.agendaStyle.headerHeight,
       ),
       child: ScrollConfiguration(
@@ -202,8 +185,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
             return PillarView(
               headObject: pillar.head.object,
               length: widget.resources.length,
-              scrollController: _verticalScrollControllers[
-                  widget.resources.indexOf(pillar) + 1],
+              scrollController: _verticalScrollControllers[widget.resources.indexOf(pillar) + 1],
               events: pillar.events,
               callBack: (p0, p1) => widget.onTap!(p0, p1),
               longCallBack: (p0, p1) => widget.onLongPress!(p0, p1),
@@ -218,23 +200,17 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
 
   Widget _buildTimeLines(BuildContext context) {
     return Container(
-      alignment: widget.agendaStyle.direction == TextDirection.rtl
-          ? Alignment.topLeft
-          : Alignment.topRight,
+      alignment: widget.agendaStyle.direction == TextDirection.rtl ? Alignment.topLeft : Alignment.topRight,
       width: widget.agendaStyle.timeItemWidth + 1,
       padding: EdgeInsets.only(top: widget.agendaStyle.headerHeight),
       decoration: BoxDecoration(
         color: widget.agendaStyle.timelineColor,
         border: Border(
           right: widget.agendaStyle.direction == TextDirection.ltr
-              ? BorderSide(
-                  color:
-                      widget.agendaStyle.timelineBorderColor.withValues(alpha: 0.5))
+              ? BorderSide(color: widget.agendaStyle.timelineBorderColor.withValues(alpha: 0.5))
               : BorderSide.none,
           left: widget.agendaStyle.direction == TextDirection.rtl
-              ? BorderSide(
-                  color:
-                      widget.agendaStyle.timelineBorderColor.withValues(alpha: 0.5))
+              ? BorderSide(color: widget.agendaStyle.timelineBorderColor.withValues(alpha: 0.5))
               : BorderSide.none,
         ),
       ),
@@ -244,58 +220,41 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
           controller: _verticalScrollControllers[0],
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
-          children: [
-            for (var i = widget.agendaStyle.startHour;
-                i < widget.agendaStyle.endHour;
-                i += 1)
-              i
-          ].map((hour) {
+          children: [for (var i = widget.agendaStyle.startHour; i < widget.agendaStyle.endHour; i += 1) i].map((hour) {
             return Container(
               height: widget.agendaStyle.timeSlot.height,
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
-                    color:
-                        widget.agendaStyle.timelineBorderColor.withValues(alpha: 0.8),
+                    color: widget.agendaStyle.timelineBorderColor.withValues(alpha: 0.8),
                     width: 0.8,
                   ),
                 ),
                 color: widget.agendaStyle.timelineItemColor,
               ),
-              child: widget.agendaStyle.timeSlot.height == 80 &&
-                      widget.agendaStyle.timeSlot == TimeSlot.half
+              child: widget.agendaStyle.timeSlot.height == 80 && widget.agendaStyle.timeSlot == TimeSlot.half
                   ? Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Padding(
-                          padding:
-                              EdgeInsets.symmetric(vertical: 2, horizontal: 5),
+                          padding: EdgeInsets.symmetric(vertical: 2, horizontal: 5),
                           child: Text(
                             Utils.hourFormatter(hour, 0, context),
                             style: widget.agendaStyle.timeItemTextStyle
-                                .copyWith(
-                                    color: widget.agendaStyle.timeItemTextColor,
-                                    fontWeight: FontWeight.bold),
+                                .copyWith(color: widget.agendaStyle.timeItemTextColor, fontWeight: FontWeight.bold),
                             textAlign: TextAlign.right,
                           ),
                         ),
                         Padding(
-                          padding:
-                              EdgeInsets.symmetric(vertical: 2, horizontal: 5),
+                          padding: EdgeInsets.symmetric(vertical: 2, horizontal: 5),
                           child: Text(
                             Utils.hourFormatter(hour, 30, context),
-                            style: widget.agendaStyle.timeItemTextStyle
-                                .copyWith(
-                                    color:
-                                        widget.agendaStyle.timeItemTextColor),
+                            style: widget.agendaStyle.timeItemTextStyle.copyWith(color: widget.agendaStyle.timeItemTextColor),
                             textAlign: TextAlign.right,
                           ),
                         ),
-                      ]
-                          .expandEqually()
-                          .seperate(widget.agendaStyle.timelineBorderColor)
-                          .toList(),
+                      ].expandEqually().seperate(widget.agendaStyle.timelineBorderColor).toList(),
                     )
                   : widget.agendaStyle.timeSlot.height == 160
                       ? Column(
@@ -303,67 +262,46 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Padding(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 2, horizontal: 5),
+                              padding: EdgeInsets.symmetric(vertical: 2, horizontal: 5),
                               child: Text(
                                 Utils.hourFormatter(hour, 0, context),
                                 style: widget.agendaStyle.timeItemTextStyle
-                                    .copyWith(
-                                        color: widget
-                                            .agendaStyle.timeItemTextColor,
-                                        fontWeight: FontWeight.bold),
+                                    .copyWith(color: widget.agendaStyle.timeItemTextColor, fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.right,
                               ),
                             ),
                             Padding(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 2, horizontal: 5),
+                              padding: EdgeInsets.symmetric(vertical: 2, horizontal: 5),
                               child: Text(
                                 Utils.minFormatter(15),
-                                style: widget.agendaStyle.timeItemTextStyle
-                                    .copyWith(
-                                        color: widget
-                                            .agendaStyle.timeItemTextColor),
+                                style: widget.agendaStyle.timeItemTextStyle.copyWith(color: widget.agendaStyle.timeItemTextColor),
                                 textAlign: TextAlign.right,
                               ),
                             ),
                             Padding(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 2, horizontal: 5),
+                              padding: EdgeInsets.symmetric(vertical: 2, horizontal: 5),
                               child: Text(
                                 Utils.hourFormatter(hour, 30, context),
-                                style: widget.agendaStyle.timeItemTextStyle
-                                    .copyWith(
-                                        color: widget
-                                            .agendaStyle.timeItemTextColor),
+                                style: widget.agendaStyle.timeItemTextStyle.copyWith(color: widget.agendaStyle.timeItemTextColor),
                                 textAlign: TextAlign.right,
                               ),
                             ),
                             Padding(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 2, horizontal: 5),
+                              padding: EdgeInsets.symmetric(vertical: 2, horizontal: 5),
                               child: Text(
                                 Utils.minFormatter(45),
-                                style: widget.agendaStyle.timeItemTextStyle
-                                    .copyWith(
-                                        color: widget
-                                            .agendaStyle.timeItemTextColor),
+                                style: widget.agendaStyle.timeItemTextStyle.copyWith(color: widget.agendaStyle.timeItemTextColor),
                                 textAlign: TextAlign.right,
                               ),
                             ),
-                          ]
-                              .expandEqually()
-                              .seperate(widget.agendaStyle.timelineBorderColor)
-                              .toList(),
+                          ].expandEqually().seperate(widget.agendaStyle.timelineBorderColor).toList(),
                         )
                       : Padding(
                           padding: const EdgeInsets.all(5.0),
                           child: Text(
                             Utils.hourFormatter(hour, 0, context),
                             style: widget.agendaStyle.timeItemTextStyle
-                                .copyWith(
-                                    color: widget.agendaStyle.timeItemTextColor,
-                                    fontWeight: FontWeight.bold),
+                                .copyWith(color: widget.agendaStyle.timeItemTextColor, fontWeight: FontWeight.bold),
                             textAlign: TextAlign.right,
                           ),
                         ),
@@ -376,26 +314,17 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
 
   Widget _buildHeaders(BuildContext context) {
     return Container(
-      alignment: widget.agendaStyle.direction == TextDirection.rtl
-          ? Alignment.topRight
-          : Alignment.topLeft,
+      alignment: widget.agendaStyle.direction == TextDirection.rtl ? Alignment.topRight : Alignment.topLeft,
       decoration: BoxDecoration(
         color: widget.agendaStyle.pillarColor,
         border: !widget.agendaStyle.headBottomBorder
             ? null
-            : Border(
-                bottom: BorderSide(
-                    color: widget.agendaStyle.timelineBorderColor
-                        .withValues(alpha: 0.4))),
+            : Border(bottom: BorderSide(color: widget.agendaStyle.timelineBorderColor.withValues(alpha: 0.4))),
       ),
       height: widget.agendaStyle.headerHeight,
       padding: EdgeInsets.only(
-          left: widget.agendaStyle.direction == TextDirection.ltr
-              ? widget.agendaStyle.timeItemWidth
-              : 0,
-          right: widget.agendaStyle.direction == TextDirection.rtl
-              ? widget.agendaStyle.timeItemWidth
-              : 0),
+          left: widget.agendaStyle.direction == TextDirection.ltr ? widget.agendaStyle.timeItemWidth : 0,
+          right: widget.agendaStyle.direction == TextDirection.rtl ? widget.agendaStyle.timeItemWidth : 0),
       child: ScrollConfiguration(
         behavior: NoGlowScroll(),
         child: ListView(
@@ -409,21 +338,13 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                 width: pillar.width > 0.0
                     ? pillar.width
                     : widget.agendaStyle.fittedWidth
-                        ? Utils.pillarWidth(
-                            context,
-                            widget.resources.length,
-                            widget.agendaStyle.timeItemWidth,
-                            widget.agendaStyle.pillarWidth,
+                        ? Utils.pillarWidth(context, widget.resources.length, widget.agendaStyle.timeItemWidth, widget.agendaStyle.pillarWidth,
                             MediaQuery.of(context).orientation)
                         : widget.agendaStyle.pillarWidth,
                 height: pillar.head.height,
                 decoration: BoxDecoration(
                   color: pillar.head.backgroundColor,
-                  border: !widget.agendaStyle.headSeperator
-                      ? null
-                      : Border(
-                          left: BorderSide(
-                              color: widget.agendaStyle.timelineBorderColor)),
+                  border: !widget.agendaStyle.headSeperator ? null : Border(left: BorderSide(color: widget.agendaStyle.timelineBorderColor)),
                 ),
                 child: Center(
                   child: Row(
@@ -431,10 +352,8 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                        child: widget.agendaStyle.headerLogo ==
-                                HeaderLogo.circle
+                        padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                        child: widget.agendaStyle.headerLogo == HeaderLogo.circle
                             ? Material(
                                 color: pillar.head.color.withValues(alpha: 0.5),
                                 borderRadius: BorderRadius.circular(50),
@@ -446,19 +365,15 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                                       sigmaY: 7.0,
                                     ),
                                     child: Container(
-                                      width:
-                                          widget.agendaStyle.headerHeight - 10,
+                                      width: widget.agendaStyle.headerHeight - 10,
                                       decoration: BoxDecoration(
                                         color: Colors.transparent,
                                         borderRadius: BorderRadius.circular(50),
                                       ),
                                       child: Center(
                                         child: Text(
-                                          pillar.head.title
-                                              .substring(0, 1)
-                                              .toUpperCase(),
-                                          style: pillar.head.textStyle
-                                              .copyWith(fontSize: 14),
+                                          pillar.head.title.substring(0, 1).toUpperCase(),
+                                          style: pillar.head.textStyle.copyWith(fontSize: 14),
                                         ),
                                       ),
                                     ),
@@ -508,19 +423,14 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
   }
 
   void _scrollToCurrentTime() {
-    final totalHours =
-        widget.agendaStyle.endHour - widget.agendaStyle.startHour;
+    final totalHours = widget.agendaStyle.endHour - widget.agendaStyle.startHour;
     final totalSeconds = totalHours * 3600;
     final now = DateTime.now();
-    final nowSeconds =
-        ((now.hour - widget.agendaStyle.startHour) * 3600) + (now.minute * 60);
+    final nowSeconds = ((now.hour - widget.agendaStyle.startHour) * 3600) + (now.minute * 60);
     final agendaHeight = widget.agendaStyle.timeSlot.height * totalHours;
     final currentTimeOffset = agendaHeight * (nowSeconds / totalSeconds);
-    final visibleHeight = MediaQuery.of(context).size.height -
-        widget.agendaStyle.headerHeight -
-        widget.agendaStyle.timeSlot.height;
-    if ((_verticalScrollLinker.offset + visibleHeight) < currentTimeOffset ||
-        _verticalScrollLinker.offset > currentTimeOffset) {
+    final visibleHeight = MediaQuery.of(context).size.height - widget.agendaStyle.headerHeight - widget.agendaStyle.timeSlot.height;
+    if ((_verticalScrollLinker.offset + visibleHeight) < currentTimeOffset || _verticalScrollLinker.offset > currentTimeOffset) {
       _verticalScrollLinker.jumpTo(currentTimeOffset - (visibleHeight / 2));
     }
   }
