@@ -98,14 +98,16 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
   @override
   void didUpdateWidget(covariant FlutterAgenda oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final verticalControllersLength = _verticalScrollControllers.length;
-    if (widget.resources.length + 1 > verticalControllersLength) {
-      for (int i = 0; i <= (widget.resources.length + 1) - verticalControllersLength; i++) {
+    if ((widget.resources.length + 1) > _verticalScrollControllers.length) {
+      while (_verticalScrollControllers.length < (widget.resources.length + 1)) {
         _verticalScrollControllers.add(_verticalScrollLinker.addAndGet());
       }
-    } else if (widget.resources.length + 1 < verticalControllersLength) {
-      for (int i = 0; i <= verticalControllersLength - (widget.resources.length + 1); i++) {
-        _verticalScrollControllers.removeLast();
+    } else if ((widget.resources.length + 1) < _verticalScrollControllers.length) {
+      while (_verticalScrollControllers.length > (widget.resources.length + 1)) {
+        final controller = _verticalScrollControllers.removeLast();
+        if (controller.hasClients) {
+          controller.dispose();
+        }
       }
     }
   }
