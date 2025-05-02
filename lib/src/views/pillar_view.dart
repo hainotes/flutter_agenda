@@ -15,6 +15,7 @@ class PillarView extends StatefulWidget {
   final AgendaStyle agendaStyle;
   final Function(EventTime, dynamic)? callBack;
   final Function(EventTime, dynamic)? longCallBack;
+  final Function(EventTime, dynamic)? doubleCallBack;
   final double width;
 
   PillarView({
@@ -25,6 +26,7 @@ class PillarView extends StatefulWidget {
     required this.scrollController,
     required this.agendaStyle,
     this.callBack,
+    this.doubleCallBack,
     this.longCallBack,
     this.width = 0.0,
   }) : super(key: key);
@@ -113,8 +115,7 @@ class _PillarViewState extends State<PillarView> {
         // Extend width if there are no overlapping events in next columns
         for (int nextColIndex = colIndex + 1; nextColIndex < eventCols.length; nextColIndex++) {
           final nextCol = eventCols[colIndex + 1];
-          if (nextCol.every((nextEvent) =>
-              nextEvent.start.compareTo(e.end) >= 0 || nextEvent.end.compareTo(e.start) <= 0)) {
+          if (nextCol.every((nextEvent) => nextEvent.start.compareTo(e.end) >= 0 || nextEvent.end.compareTo(e.start) <= 0)) {
             e.width += eventWidth;
           }
         }
@@ -142,16 +143,13 @@ class _PillarViewState extends State<PillarView> {
             widget.agendaStyle.timeSlot.height,
             widget.agendaStyle.startHour,
           );
-          if (_mouseOverHour == null ||
-              mouseOverHour.hour != _mouseOverHour!.hour ||
-              mouseOverHour.minute != _mouseOverHour!.minute) {
+          if (_mouseOverHour == null || mouseOverHour.hour != _mouseOverHour!.hour || mouseOverHour.minute != _mouseOverHour!.minute) {
             setState(() => _mouseOverHour = mouseOverHour);
           }
         },
         child: GestureDetector(
           onTapDown: (tapdetails) {
-            _tappedHour = tappedHour(tapdetails.localPosition.dy,
-                widget.agendaStyle.timeSlot.height, widget.agendaStyle.startHour);
+            _tappedHour = tappedHour(tapdetails.localPosition.dy, widget.agendaStyle.timeSlot.height, widget.agendaStyle.startHour);
             _tappedObject = widget.headObject;
             _tapDownTime = DateTime.now().millisecondsSinceEpoch;
           },
@@ -165,17 +163,21 @@ class _PillarViewState extends State<PillarView> {
               widget.longCallBack?.call(_tappedHour!, _tappedObject);
             }
           },
+          onDoubleTap: () {
+            if (_tappedHour != null) {
+              widget.doubleCallBack?.call(_tappedHour!, _tappedObject);
+            }
+          },
           child: Container(
             height: height(),
             width: widget.width > 0.0
                 ? widget.width
                 : widget.agendaStyle.fittedWidth
-                    ? Utils.pillarWidth(context, widget.length, widget.agendaStyle.timeItemWidth,
-                        widget.agendaStyle.pillarWidth, MediaQuery.of(context).orientation)
+                    ? Utils.pillarWidth(
+                        context, widget.length, widget.agendaStyle.timeItemWidth, widget.agendaStyle.pillarWidth, MediaQuery.of(context).orientation)
                     : widget.agendaStyle.pillarWidth,
-            decoration: widget.agendaStyle.pillarSeperator
-                ? BoxDecoration(border: Border(left: BorderSide(color: Color(0xFFCECECE))))
-                : BoxDecoration(),
+            decoration:
+                widget.agendaStyle.pillarSeperator ? BoxDecoration(border: Border(left: BorderSide(color: Color(0xFFCECECE)))) : BoxDecoration(),
             child: Stack(
               children: [
                 ...[
@@ -237,7 +239,6 @@ class _PillarViewState extends State<PillarView> {
   }
 
   double height() {
-    return (widget.agendaStyle.endHour - widget.agendaStyle.startHour) *
-        widget.agendaStyle.timeSlot.height;
+    return (widget.agendaStyle.endHour - widget.agendaStyle.startHour) * widget.agendaStyle.timeSlot.height;
   }
 }
