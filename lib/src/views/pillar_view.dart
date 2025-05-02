@@ -158,14 +158,19 @@ class _PillarViewState extends State<PillarView> {
               widget.callBack?.call(_tappedHour!, _tappedObject);
             }
           },
-          onLongPress: () {
-            if (_tappedHour != null) {
-              widget.longCallBack?.call(_tappedHour!, _tappedObject);
-            }
+          onDoubleTapDown: (details) {
+            _tappedHour = tappedHour(details.localPosition.dy, widget.agendaStyle.timeSlot.height, widget.agendaStyle.startHour);
+            _tappedObject = widget.headObject;
+            _tapDownTime = DateTime.now().millisecondsSinceEpoch;
           },
           onDoubleTap: () {
             if (_tappedHour != null) {
               widget.doubleCallBack?.call(_tappedHour!, _tappedObject);
+            }
+          },
+          onLongPress: () {
+            if (_tappedHour != null) {
+              widget.longCallBack?.call(_tappedHour!, _tappedObject);
             }
           },
           child: Container(
