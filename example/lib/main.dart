@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_agenda/flutter_agenda.dart';
 
@@ -27,27 +29,27 @@ class AgendaScreen extends StatefulWidget {
 }
 
 List<Resource> resources = <Resource>[];
-bool _isloading = true;
 TimeSlot _selectedTimeSlot = TimeSlot.half;
 
 class AgendaScreenState extends State<AgendaScreen> {
   @override
   void initState() {
     super.initState();
+    final letter = _randomLetter();
     resources = [
       Resource(
-        head: Header(title: 'الموارد 1.', subtitle: '3 التعيينات', object: 1),
+        head: Header(title: 'Resource $letter', subtitle: 'Event', object: letter),
         events: [
           AgendaEvent(
-            title: 'اجتماع D.',
-            subtitle: 'ب',
+            title: 'Meeting $letter',
+            subtitle: 'Event 1',
             backgroundColor: Colors.red,
             start: EventTime(hour: 15, minute: 0),
             end: EventTime(hour: 16, minute: 30),
           ),
           AgendaEvent(
-            title: 'اجتماع Z.',
-            subtitle: 'MZ.',
+            title: 'Meeting $letter',
+            subtitle: 'Event 2',
             start: EventTime(hour: 9, minute: 0),
             end: EventTime(hour: 18, minute: 0),
           ),
@@ -85,6 +87,7 @@ class AgendaScreenState extends State<AgendaScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final letter = _randomLetter();
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -93,47 +96,30 @@ class AgendaScreenState extends State<AgendaScreen> {
             IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: () {
-                setState(() {
-                  _isloading = !_isloading;
-                });
+                setState(() {});
               },
             ),
             IconButton(
               icon: const Icon(Icons.add),
               onPressed: () {
                 setState(() {
-                  resources.addAll([
+                  resources.add(
                     Resource(
-                      head: Header(title: 'الموارد 4.', object: 4),
+                      head: Header(title: 'Resource $letter', object: letter),
                       events: [
                         AgendaEvent(
-                          title: 'اجتماع أ',
-                          subtitle: 'MA',
+                          title: 'Meeting $letter',
+                          subtitle: 'Event',
                           start: EventTime(hour: 10, minute: 10),
                           end: EventTime(hour: 11, minute: 45),
                           onTap: () {
                             // ignore: avoid_print
-                            print("meeting A Details");
+                            print("Meeting $letter Details");
                           },
                         ),
                       ],
                     ),
-                    Resource(
-                      head: Header(title: 'الموارد 4.', object: 4),
-                      events: [
-                        AgendaEvent(
-                          title: 'اجتماع أ',
-                          subtitle: 'MA',
-                          start: EventTime(hour: 10, minute: 10),
-                          end: EventTime(hour: 11, minute: 45),
-                          onTap: () {
-                            // ignore: avoid_print
-                            print("meeting A Details");
-                          },
-                        ),
-                      ],
-                    )
-                  ]);
+                  );
                 });
               },
             ),
@@ -141,7 +127,7 @@ class AgendaScreenState extends State<AgendaScreen> {
               icon: const Icon(Icons.remove),
               onPressed: () {
                 setState(() {
-                  resources.removeAt(0);
+                  resources.removeLast();
                 });
               },
             ),
@@ -150,21 +136,20 @@ class AgendaScreenState extends State<AgendaScreen> {
               onPressed: () {
                 setState(() {
                   resources.first.events.add(AgendaEvent(
-                    title: 'اجتماع أ',
+                    title: 'Meeting $letter',
                     subtitle: 'MA',
                     start: EventTime(hour: 9, minute: 0),
                     end: EventTime(hour: 11, minute: 45),
                     onTap: () {
                       // ignore: avoid_print
-                      print("meeting A Details");
+                      print("Meeting $letter Details");
                     },
                   ));
                 });
               },
             ),
             TextButton(
-              child:
-                  const Text("15 min", style: TextStyle(color: Colors.white)),
+              child: const Text("15 min", style: TextStyle(color: Colors.white)),
               onPressed: () {
                 setState(() {
                   _selectedTimeSlot = TimeSlot.quarter;
@@ -172,8 +157,7 @@ class AgendaScreenState extends State<AgendaScreen> {
               },
             ),
             TextButton(
-              child:
-                  const Text("30 min", style: TextStyle(color: Colors.white)),
+              child: const Text("30 min", style: TextStyle(color: Colors.white)),
               onPressed: () {
                 setState(() {
                   _selectedTimeSlot = TimeSlot.half;
@@ -197,54 +181,58 @@ class AgendaScreenState extends State<AgendaScreen> {
             // ),
           ],
         ),
-        body: _isloading
-            ? const Center(
-                child: CircularProgressIndicator(),
-              )
-            : FlutterAgenda(
-                resources: resources,
-                agendaStyle: AgendaStyle(
-                  startHour: 9,
-                  endHour: 23,
-                  headerLogo: HeaderLogo.bar,
-                  fittedWidth: false,
-                  timeItemWidth: 45,
-                  timeSlot: _selectedTimeSlot,
-                  pillarSeperator: true,
-                  visibleTimeBorder: true,
-                  visibleDecorationBorder: true,
-                  visibleCurrentTimeMarker: true,
-                ),
-                // the click else where (other than an event because it has it's own onTap parameter)
-                // you get the object linked to the head object of the pillar which could be you project costume object
-                // and the cliked time
-                onTap: (clickedTime, object) {
-                  // ignore: avoid_print
-                  print(
-                      "Clicked time: ${clickedTime.hour}:${clickedTime.minute}");
-                  // ignore: avoid_print
-                  print("Head Object related to the resource: $object");
-                  resources
-                      .where((resource) => resource.head.object == object)
-                      .first
-                      .events
-                      .add(AgendaEvent(
-                        title: 'اجتماع أ',
-                        subtitle: 'MA',
-                        start: clickedTime,
-                        end: EventTime(
-                            hour: clickedTime.hour + 1,
-                            minute: clickedTime.minute),
-                        onTap: () {
-                          // ignore: avoid_print
-                          print("meeting A Details");
-                        },
-                      ));
-
-                  setState(() {});
-                },
-              ),
+        body: FlutterAgenda(
+          resources: resources,
+          agendaStyle: AgendaStyle(
+            startHour: 9,
+            endHour: 23,
+            headerLogo: HeaderLogo.bar,
+            fittedWidth: false,
+            timeItemWidth: 45,
+            timeSlot: _selectedTimeSlot,
+            pillarSeperator: true,
+            visibleTimeBorder: true,
+            visibleDecorationBorder: true,
+            visibleCurrentTimeMarker: true,
+          ),
+          // the click else where (other than an event because it has it's own onTap parameter)
+          // you get the object linked to the head object of the pillar which could be you project costume object
+          // and the cliked time
+          onTap: (clickedTime, object) {
+            // ignore: avoid_print
+            print("Clicked time: ${clickedTime.hour}:${clickedTime.minute}");
+            // ignore: avoid_print
+            print("Head Object related to the resource: $object");
+            resources.where((resource) => resource.head.object == object).first.events.add(
+                  AgendaEvent(
+                    title: 'Meeting ${_randomLetter()}',
+                    subtitle: 'MA',
+                    start: clickedTime,
+                    end: EventTime(hour: clickedTime.hour + 1, minute: clickedTime.minute),
+                    onTap: () {
+                      // ignore: avoid_print
+                      print("Meeting Details");
+                    },
+                  ),
+                );
+            setState(() {});
+          },
+          onDoubleTap: (clickedTime, object) {
+            // ignore: avoid_print
+            print("double tap");
+          },
+          onLongPress: (clickedTime, object) {
+            // ignore: avoid_print
+            print("long press");
+          },
+        ),
       ),
     );
+  }
+
+  String _randomLetter() {
+    final random = Random();
+    final letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    return letters[random.nextInt(letters.length)];
   }
 }

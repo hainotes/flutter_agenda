@@ -36,11 +36,10 @@ class PillarView extends StatefulWidget {
 }
 
 class _PillarViewState extends State<PillarView> {
-  int _tapDownTime = 0;
+  final ValueNotifier<int> _currentTimeMarkerNotifier = ValueNotifier<int>(0);
   EventTime? _tappedHour;
   dynamic _tappedObject;
   Timer? _currentTimeMarkerTimer;
-  final ValueNotifier<int> _currentTimeMarkerNotifier = ValueNotifier<int>(0);
   bool _showHourIndicator = false;
   EventTime? _mouseOverHour;
 
@@ -151,22 +150,24 @@ class _PillarViewState extends State<PillarView> {
           onTapDown: (tapdetails) {
             _tappedHour = tappedHour(tapdetails.localPosition.dy, widget.agendaStyle.timeSlot.height, widget.agendaStyle.startHour);
             _tappedObject = widget.headObject;
-            _tapDownTime = DateTime.now().millisecondsSinceEpoch;
           },
           onTap: () {
-            if (DateTime.now().millisecondsSinceEpoch - _tapDownTime < 250) {
+            if (_tappedHour != null) {
               widget.callBack?.call(_tappedHour!, _tappedObject);
             }
           },
           onDoubleTapDown: (details) {
             _tappedHour = tappedHour(details.localPosition.dy, widget.agendaStyle.timeSlot.height, widget.agendaStyle.startHour);
             _tappedObject = widget.headObject;
-            _tapDownTime = DateTime.now().millisecondsSinceEpoch;
           },
           onDoubleTap: () {
             if (_tappedHour != null) {
               widget.doubleCallBack?.call(_tappedHour!, _tappedObject);
             }
+          },
+          onLongPressDown: (details) {
+            _tappedHour = tappedHour(details.localPosition.dy, widget.agendaStyle.timeSlot.height, widget.agendaStyle.startHour);
+            _tappedObject = widget.headObject;
           },
           onLongPress: () {
             if (_tappedHour != null) {
