@@ -83,7 +83,6 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
 
   @override
   void dispose() {
-    super.dispose();
     if (_autoScrollTimer != null) {
       _autoScrollTimer!.cancel();
     }
@@ -96,6 +95,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
     // disposing the horizontal scrollers
     _headerScrollController.dispose();
     _bodyScrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -108,9 +108,10 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
     } else if ((widget.resources.length + 1) < _verticalScrollControllers.length) {
       while (_verticalScrollControllers.length > (widget.resources.length + 1)) {
         final controller = _verticalScrollControllers.removeLast();
-        if (controller.hasClients) {
-          controller.dispose();
-        }
+        // Always dispose: _LinkedScrollController.dispose() also unregisters it
+        // from the ScrollLinker. Skipping it when hasClients == false leaks the
+        // controller and its offset listener.
+        controller.dispose();
       }
     }
   }
@@ -121,6 +122,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
       if (_clientHeight != MediaQuery.of(context).size.height) {
         _clientHeight = MediaQuery.of(context).size.height;
         Future.delayed(Duration(milliseconds: 1000), () {
+          if (!mounted) return;
           _scrollToCurrentTime();
         });
       }
@@ -339,7 +341,7 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
           shrinkWrap: true,
           children: widget.resources.map((pillar) {
             return GestureDetector(
-              onTap: () => pillar.head.onTap,
+              onTap: pillar.head.onTap,
               child: Container(
                 width: pillar.width > 0.0
                     ? pillar.width
@@ -378,7 +380,9 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
                                       ),
                                       child: Center(
                                         child: Text(
-                                          pillar.head.title.substring(0, 1).toUpperCase(),
+                                          pillar.head.title.isEmpty
+                                              ? ''
+                                              : pillar.head.title.substring(0, 1).toUpperCase(),
                                           style: pillar.head.textStyle.copyWith(fontSize: 14),
                                         ),
                                       ),
@@ -429,6 +433,9 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
   }
 
   void _scrollToCurrentTime() {
+    if (!mounted) {
+      return;
+    }
     final totalHours = widget.agendaStyle.endHour - widget.agendaStyle.startHour;
     final totalSeconds = totalHours * 3600;
     final now = DateTime.now();

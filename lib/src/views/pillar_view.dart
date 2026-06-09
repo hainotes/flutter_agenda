@@ -37,11 +37,25 @@ class PillarView extends StatefulWidget {
 
 class _PillarViewState extends State<PillarView> {
   final ValueNotifier<int> _currentTimeMarkerNotifier = ValueNotifier<int>(0);
+
+  // Hover state is kept in notifiers (not setState) so moving the mouse only
+  // repaints the background layer instead of rebuilding the whole pillar and
+  // re-running the O(n^2) event layout pass on every pointer move.
+  final ValueNotifier<bool> _showHourIndicator = ValueNotifier<bool>(false);
+  final ValueNotifier<EventTime?> _mouseOverHour =
+      ValueNotifier<EventTime?>(null);
+  late final Listenable _backgroundRepaint =
+      Listenable.merge([_showHourIndicator, _mouseOverHour]);
+
   EventTime? _tappedHour;
   dynamic _tappedObject;
   Timer? _currentTimeMarkerTimer;
-  bool _showHourIndicator = false;
-  EventTime? _mouseOverHour;
+
+  // Memoized event-column layout. The expensive packing pass only runs when
+  // [widget.events] changes identity; hover / repaints reuse the cached result.
+  List<List<AgendaEvent>>? _cachedCols;
+  List<List<int>>? _cachedSpans;
+  List<AgendaEvent>? _cachedFor;
 
   @override
   void initState() {
@@ -55,95 +69,44 @@ class _PillarViewState extends State<PillarView> {
 
   @override
   void dispose() {
-    if (_currentTimeMarkerTimer != null) {
-      _currentTimeMarkerTimer!.cancel();
-    }
+    _currentTimeMarkerTimer?.cancel();
     _currentTimeMarkerNotifier.dispose();
+    _showHourIndicator.dispose();
+    _mouseOverHour.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final List<List<AgendaEvent>> eventCols = [];
-    final events = widget.events.toList();
-    events.sort((a, b) {
-      int result = a.start.compareTo(b.start);
-      if (result == 0) {
-        result = a.end.compareTo(b.end);
-      }
-      return result;
-    });
-    for (final event in events) {
-      bool added = false;
-      for (final col in eventCols) {
-        if (col.isNotEmpty) {
-          final lastEvent = col.last;
-          if (event.start.compareTo(lastEvent.end) >= 0) {
-            col.add(event);
-            added = true;
-            break;
-          }
-        } else {
-          col.add(event);
-          added = true;
-          break;
-        }
-      }
-      if (!added) {
-        eventCols.add([event]);
-      }
-    }
-    final width = widget.width > 0.0
-        ? widget.width
-        : widget.agendaStyle.fittedWidth
-            ? Utils.pillarWidth(
-                context,
-                widget.length,
-                widget.agendaStyle.timeItemWidth,
-                widget.agendaStyle.pillarWidth,
-                MediaQuery.of(context).orientation,
-              )
-            : widget.agendaStyle.pillarWidth;
-    for (int colIndex = 0; colIndex < eventCols.length; colIndex++) {
-      final col = eventCols[colIndex];
-      final eventWidth = width / eventCols.length;
-      final eventLeft = colIndex * eventWidth;
-      for (final e in col) {
-        e.left = eventLeft;
-        e.width = eventWidth;
-        // Extend width if there are no overlapping events in next columns
-        for (int nextColIndex = colIndex + 1; nextColIndex < eventCols.length; nextColIndex++) {
-          final nextCol = eventCols[colIndex + 1];
-          if (nextCol.every((nextEvent) => nextEvent.start.compareTo(e.end) >= 0 || nextEvent.end.compareTo(e.start) <= 0)) {
-            e.width += eventWidth;
-          }
-        }
-      }
-    }
+    final width = _resolveWidth(context);
+    final geometry = _computeGeometry(width);
     return SingleChildScrollView(
       controller: widget.scrollController,
       physics: ClampingScrollPhysics(),
       child: MouseRegion(
-        onEnter: (event) => setState(() {
-          _showHourIndicator = true;
-          _mouseOverHour = tappedHour(
+        onEnter: (event) {
+          _showHourIndicator.value = true;
+          _mouseOverHour.value = tappedHour(
             event.localPosition.dy,
             widget.agendaStyle.timeSlot.height,
             widget.agendaStyle.startHour,
           );
-        }),
-        onExit: (event) => setState(() {
-          _showHourIndicator = false;
-          _mouseOverHour = null;
-        }),
+        },
+        onExit: (event) {
+          _showHourIndicator.value = false;
+          _mouseOverHour.value = null;
+        },
         onHover: (event) {
-          final mouseOverHour = tappedHour(
+          final hovered = tappedHour(
             event.localPosition.dy,
             widget.agendaStyle.timeSlot.height,
             widget.agendaStyle.startHour,
           );
-          if (_mouseOverHour == null || mouseOverHour.hour != _mouseOverHour!.hour || mouseOverHour.minute != _mouseOverHour!.minute) {
-            setState(() => _mouseOverHour = mouseOverHour);
+          final current = _mouseOverHour.value;
+          if (current == null ||
+              hovered.hour != current.hour ||
+              hovered.minute != current.minute) {
+            _mouseOverHour.value = hovered;
           }
         },
         child: GestureDetector(
@@ -176,12 +139,7 @@ class _PillarViewState extends State<PillarView> {
           },
           child: Container(
             height: height(),
-            width: widget.width > 0.0
-                ? widget.width
-                : widget.agendaStyle.fittedWidth
-                    ? Utils.pillarWidth(
-                        context, widget.length, widget.agendaStyle.timeItemWidth, widget.agendaStyle.pillarWidth, MediaQuery.of(context).orientation)
-                    : widget.agendaStyle.pillarWidth,
+            width: width,
             decoration:
                 widget.agendaStyle.pillarSeperator ? BoxDecoration(border: Border(left: BorderSide(color: Color(0xFFCECECE)))) : BoxDecoration(),
             child: Stack(
@@ -192,8 +150,10 @@ class _PillarViewState extends State<PillarView> {
                       painter: BackgroundPainter(
                         agendaStyle: widget.agendaStyle,
                         context: context,
-                        showHourIndicator: _showHourIndicator && widget.headObject != null,
-                        mouseOverHourCallback: () => _mouseOverHour,
+                        repaint: _backgroundRepaint,
+                        showHourIndicator: () =>
+                            _showHourIndicator.value && widget.headObject != null,
+                        mouseOverHour: () => _mouseOverHour.value,
                       ),
                     ),
                   ),
@@ -212,13 +172,15 @@ class _PillarViewState extends State<PillarView> {
                     ),
                 ],
                 ...widget.events.map((event) {
+                  final g = geometry[event];
                   return EventView(
                     event: event,
                     length: widget.length,
                     agendaStyle: widget.agendaStyle,
-                    width: widget.width,
+                    left: g?.left ?? 0.0,
+                    width: g?.width ?? 0.0,
                   );
-                }).toList(),
+                }),
               ],
             ),
           ),
@@ -227,9 +189,110 @@ class _PillarViewState extends State<PillarView> {
     );
   }
 
+  double _resolveWidth(BuildContext context) {
+    if (widget.width > 0.0) {
+      return widget.width;
+    }
+    if (widget.agendaStyle.fittedWidth) {
+      return Utils.pillarWidth(
+        context,
+        widget.length,
+        widget.agendaStyle.timeItemWidth,
+        widget.agendaStyle.pillarWidth,
+        MediaQuery.of(context).orientation,
+      );
+    }
+    return widget.agendaStyle.pillarWidth;
+  }
+
+  /// Packs events into non-overlapping columns and, for each event, computes
+  /// how many subsequent columns it can safely span into. Cached by the
+  /// identity of [widget.events].
+  void _ensureColumns() {
+    if (identical(_cachedFor, widget.events) && _cachedCols != null) {
+      return;
+    }
+    final events = widget.events.toList();
+    events.sort((a, b) {
+      int result = a.start.compareTo(b.start);
+      if (result == 0) {
+        result = a.end.compareTo(b.end);
+      }
+      return result;
+    });
+
+    final List<List<AgendaEvent>> eventCols = [];
+    for (final event in events) {
+      bool added = false;
+      for (final col in eventCols) {
+        if (col.isEmpty || event.start.compareTo(col.last.end) >= 0) {
+          col.add(event);
+          added = true;
+          break;
+        }
+      }
+      if (!added) {
+        eventCols.add([event]);
+      }
+    }
+
+    final List<List<int>> spans = [];
+    for (int colIndex = 0; colIndex < eventCols.length; colIndex++) {
+      final col = eventCols[colIndex];
+      final colSpans = <int>[];
+      for (final e in col) {
+        int span = 0;
+        // Extend across later columns only while every later column is free of
+        // overlap; stop at the first column that actually overlaps this event.
+        for (int nextColIndex = colIndex + 1; nextColIndex < eventCols.length; nextColIndex++) {
+          final nextCol = eventCols[nextColIndex];
+          final noOverlap = nextCol.every((nextEvent) =>
+              nextEvent.start.compareTo(e.end) >= 0 || nextEvent.end.compareTo(e.start) <= 0);
+          if (!noOverlap) {
+            break;
+          }
+          span++;
+        }
+        colSpans.add(span);
+      }
+      spans.add(colSpans);
+    }
+
+    _cachedCols = eventCols;
+    _cachedSpans = spans;
+    _cachedFor = widget.events;
+  }
+
+  /// Resolves the per-event pixel geometry for the given pillar [width] from the
+  /// memoized column layout. O(events); no model mutation.
+  Map<AgendaEvent, ({double left, double width})> _computeGeometry(double width) {
+    _ensureColumns();
+    final geometry = <AgendaEvent, ({double left, double width})>{};
+    final cols = _cachedCols!;
+    final spans = _cachedSpans!;
+    if (cols.isEmpty) {
+      return geometry;
+    }
+    final eventWidth = width / cols.length;
+    for (int colIndex = 0; colIndex < cols.length; colIndex++) {
+      final col = cols[colIndex];
+      final colSpans = spans[colIndex];
+      final left = colIndex * eventWidth;
+      for (int i = 0; i < col.length; i++) {
+        geometry[col[i]] = (left: left, width: eventWidth * (1 + colSpans[i]));
+      }
+    }
+    return geometry;
+  }
+
   EventTime tappedHour(double tapPosition, double itemHeight, int startHour) {
     double hourCount = (tapPosition / itemHeight);
-    int hour = (startHour + hourCount.floor());
+    int hour = startHour + hourCount.floor();
+    if (hour < 0) {
+      hour = 0;
+    } else if (hour > 23) {
+      hour = 23;
+    }
     double minuteCount = hourCount - hourCount.floor();
     int minute;
     if (minuteCount >= 0.75) {

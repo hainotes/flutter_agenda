@@ -12,6 +12,9 @@ class Utils {
 
   static double pillarWidth(BuildContext context, int length, double timeWidth,
       double defaultWidth, Orientation orientation) {
+    if (length <= 0) {
+      return defaultWidth;
+    }
     double screenWidth = MediaQuery.of(context).size.width;
     switch (orientation) {
       case Orientation.portrait:

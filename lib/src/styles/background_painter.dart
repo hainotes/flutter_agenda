@@ -7,18 +7,25 @@ import 'package:flutter_agenda/src/utils/utils.dart';
 class BackgroundPainter extends CustomPainter {
   final AgendaStyle agendaStyle;
   final BuildContext context;
-  final bool showHourIndicator;
-  final EventTime? Function()? mouseOverHourCallback;
+
+  /// Live hover state, read at paint time. The painter repaints when [repaint]
+  /// fires, so these always reflect the current pointer position.
+  final bool Function() showHourIndicator;
+  final EventTime? Function() mouseOverHour;
 
   BackgroundPainter({
     required this.agendaStyle,
     required this.context,
-    this.showHourIndicator = false,
-    this.mouseOverHourCallback,
-  });
+    required Listenable repaint,
+    required this.showHourIndicator,
+    required this.mouseOverHour,
+  }) : super(repaint: repaint);
 
   @override
   void paint(Canvas canvas, Size size) {
+    final bool showIndicator = showHourIndicator();
+    final EventTime? overHour = mouseOverHour();
+
     canvas.drawRect(
       Rect.fromLTWH(0, 0, size.width, size.height),
       Paint()..color = agendaStyle.mainBackgroundColor,
@@ -26,14 +33,11 @@ class BackgroundPainter extends CustomPainter {
     final totalHours = agendaStyle.endHour - agendaStyle.startHour;
     if (agendaStyle.visibleTimeBorder) {
       final borderPaint = Paint()..color = agendaStyle.timelineBorderColor;
-      Paint? mouseOverPaint;
-      if (showHourIndicator && mouseOverHourCallback != null) {
-        mouseOverPaint = Paint()
-          ..color = Colors.purple.withValues(alpha: 0.2)
-          ..style = PaintingStyle.fill;
-      } else {
-        mouseOverPaint = null;
-      }
+      final Paint? mouseOverPaint = showIndicator
+          ? (Paint()
+            ..color = Colors.purple.withValues(alpha: 0.2)
+            ..style = PaintingStyle.fill)
+          : null;
       for (int hour = 0; hour < totalHours; hour++) {
         double topOffset = calculateTopOffset(hour);
         canvas.drawLine(
@@ -41,7 +45,7 @@ class BackgroundPainter extends CustomPainter {
           Offset(size.width, topOffset),
           borderPaint,
         );
-        if (showHourIndicator) {
+        if (showIndicator) {
           final hourText = TextSpan(
             text: Utils.hourFormatter(
               hour + agendaStyle.startHour,
@@ -66,64 +70,61 @@ class BackgroundPainter extends CustomPainter {
             canvas,
             Offset((size.width - textPainter.width) / 2, topOffset),
           );
-          if (mouseOverHourCallback != null) {
-            final mouseOverHour = mouseOverHourCallback!();
-            if (mouseOverHour != null &&
-                mouseOverHour.hour == hour + agendaStyle.startHour) {
-              double minuteOffset = 0;
-              if (mouseOverHour.minute > 0) {
-                switch (agendaStyle.timeSlot) {
-                  case TimeSlot.quarter:
-                    minuteOffset = (mouseOverHour.minute / 15) *
-                        agendaStyle.decorationLineHeight;
-                    break;
-                  default:
-                    if (mouseOverHour.minute >= 30) {
-                      minuteOffset = agendaStyle.decorationLineHeight;
-                    }
-                    break;
-                }
+          if (overHour != null &&
+              overHour.hour == hour + agendaStyle.startHour) {
+            double minuteOffset = 0;
+            if (overHour.minute > 0) {
+              switch (agendaStyle.timeSlot) {
+                case TimeSlot.quarter:
+                  minuteOffset =
+                      (overHour.minute / 15) * agendaStyle.decorationLineHeight;
+                  break;
+                default:
+                  if (overHour.minute >= 30) {
+                    minuteOffset = agendaStyle.decorationLineHeight;
+                  }
+                  break;
               }
-              canvas.drawRect(
-                Rect.fromLTWH(
-                  0,
-                  topOffset + minuteOffset,
-                  size.width,
-                  agendaStyle.decorationLineHeight,
+            }
+            canvas.drawRect(
+              Rect.fromLTWH(
+                0,
+                topOffset + minuteOffset,
+                size.width,
+                agendaStyle.decorationLineHeight,
+              ),
+              mouseOverPaint!,
+            );
+            if (minuteOffset > 0) {
+              final mouseOverHourText = TextSpan(
+                text: Utils.hourFormatter(
+                  overHour.hour,
+                  agendaStyle.timeSlot == TimeSlot.quarter
+                      ? overHour.minute
+                      : 30,
+                  context,
                 ),
-                mouseOverPaint!,
+                style: TextStyle(
+                  color: Colors.black45,
+                  fontSize: 10,
+                  fontStyle: FontStyle.italic,
+                ),
               );
-              if (minuteOffset > 0) {
-                final mouseOverHourText = TextSpan(
-                  text: Utils.hourFormatter(
-                    mouseOverHour.hour,
-                    agendaStyle.timeSlot == TimeSlot.quarter
-                        ? mouseOverHour.minute
-                        : 30,
-                    context,
-                  ),
-                  style: TextStyle(
-                    color: Colors.black45,
-                    fontSize: 10,
-                    fontStyle: FontStyle.italic,
-                  ),
-                );
-                final mouseOverHourTextPainter = TextPainter(
-                  text: mouseOverHourText,
-                  textDirection: TextDirection.ltr,
-                );
-                mouseOverHourTextPainter.layout(
-                  minWidth: 0,
-                  maxWidth: size.width,
-                );
-                mouseOverHourTextPainter.paint(
-                  canvas,
-                  Offset(
-                    (size.width - textPainter.width) / 2,
-                    topOffset + minuteOffset,
-                  ),
-                );
-              }
+              final mouseOverHourTextPainter = TextPainter(
+                text: mouseOverHourText,
+                textDirection: TextDirection.ltr,
+              );
+              mouseOverHourTextPainter.layout(
+                minWidth: 0,
+                maxWidth: size.width,
+              );
+              mouseOverHourTextPainter.paint(
+                canvas,
+                Offset(
+                  (size.width - textPainter.width) / 2,
+                  topOffset + minuteOffset,
+                ),
+              );
             }
           }
         }
@@ -151,11 +152,13 @@ class BackgroundPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(BackgroundPainter oldDayViewBackgroundPainter) {
-    return (agendaStyle.mainBackgroundColor !=
-            oldDayViewBackgroundPainter.agendaStyle.mainBackgroundColor ||
+  bool shouldRepaint(covariant BackgroundPainter old) {
+    return agendaStyle.mainBackgroundColor !=
+            old.agendaStyle.mainBackgroundColor ||
         agendaStyle.timelineBorderColor !=
-            oldDayViewBackgroundPainter.agendaStyle.timelineBorderColor);
+            old.agendaStyle.timelineBorderColor ||
+        showHourIndicator() != old.showHourIndicator() ||
+        mouseOverHour() != old.mouseOverHour();
   }
 
   double calculateTopOffset(int hour) => hour * agendaStyle.timeSlot.height;

@@ -10,6 +10,11 @@ class EventView extends StatelessWidget {
   final AgendaEvent event;
   final int length;
   final AgendaStyle agendaStyle;
+
+  /// Pixel geometry resolved by the parent pillar. Passed in (rather than
+  /// stored on [event]) so building a pillar has no side effects on the
+  /// caller's event models.
+  final double left;
   final double width;
 
   const EventView({
@@ -17,6 +22,7 @@ class EventView extends StatelessWidget {
     required this.event,
     required this.length,
     required this.agendaStyle,
+    this.left = 0.0,
     this.width = 0.0,
   }) : super(key: key);
 
@@ -25,8 +31,8 @@ class EventView extends StatelessWidget {
     return Positioned(
       top: top(),
       height: height(),
-      left: event.left,
-      width: event.width,
+      left: left,
+      width: width,
       child: GestureDetector(
         onTap: event.onTap,
         child: ClipRRect(

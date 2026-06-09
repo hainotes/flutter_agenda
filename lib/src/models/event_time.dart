@@ -6,8 +6,8 @@ class EventTime extends DateTime {
   EventTime({
     required this.hour,
     required this.minute,
-  })  : assert(24 >= hour),
-        assert(60 >= minute),
+  })  : assert(hour >= 0 && hour < 24, 'hour must be in [0, 23]'),
+        assert(minute >= 0 && minute < 60, 'minute must be in [0, 59]'),
         super(
           DateTime.now().year,
           DateTime.now().month,
