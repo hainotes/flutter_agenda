@@ -74,10 +74,34 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
     for (int i = 0; i < widget.resources.length; i++) {
       _verticalScrollControllers.add(_verticalScrollLinker.addAndGet());
     }
+    _syncAutoScrollTimer();
+  }
+
+  void _syncAutoScrollTimer() {
     if (widget.agendaStyle.autoScrollToCurrentTime) {
-      _autoScrollTimer = Timer.periodic(Duration(minutes: 1), (timer) {
+      _autoScrollTimer ??= Timer.periodic(Duration(minutes: 1), (timer) {
         _scrollToCurrentTime();
       });
+    } else {
+      _autoScrollTimer?.cancel();
+      _autoScrollTimer = null;
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (widget.agendaStyle.autoScrollToCurrentTime) {
+      final height = MediaQuery.of(context).size.height;
+      if (_clientHeight != height) {
+        _clientHeight = height;
+        // Scroll after the pending frame so the scrollables are laid out and
+        // attached before jumping.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          _scrollToCurrentTime();
+        });
+      }
     }
   }
 
@@ -101,6 +125,10 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
   @override
   void didUpdateWidget(covariant FlutterAgenda oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.agendaStyle.autoScrollToCurrentTime !=
+        widget.agendaStyle.autoScrollToCurrentTime) {
+      _syncAutoScrollTimer();
+    }
     if ((widget.resources.length + 1) > _verticalScrollControllers.length) {
       while (_verticalScrollControllers.length < (widget.resources.length + 1)) {
         _verticalScrollControllers.add(_verticalScrollLinker.addAndGet());
@@ -118,15 +146,6 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.agendaStyle.autoScrollToCurrentTime) {
-      if (_clientHeight != MediaQuery.of(context).size.height) {
-        _clientHeight = MediaQuery.of(context).size.height;
-        Future.delayed(Duration(milliseconds: 1000), () {
-          if (!mounted) return;
-          _scrollToCurrentTime();
-        });
-      }
-    }
     return Directionality(
       textDirection: widget.agendaStyle.direction,
       child: Stack(
@@ -188,19 +207,20 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
           scrollDirection: Axis.horizontal,
           // reverse: widget.agendaStyle.direction == TextDirection.rtl,
           controller: _bodyScrollController,
-          children: widget.resources.map((pillar) {
-            return PillarView(
-              headObject: pillar.head.object,
-              length: widget.resources.length,
-              scrollController: _verticalScrollControllers[widget.resources.indexOf(pillar) + 1],
-              events: pillar.events,
-              callBack: (p0, p1) => widget.onTap?.call(p0, p1),
-              doubleCallBack: (p0, p1) => widget.onDoubleTap?.call(p0, p1),
-              longCallBack: (p0, p1) => widget.onLongPress?.call(p0, p1),
-              agendaStyle: widget.agendaStyle,
-              width: pillar.width,
-            );
-          }).toList(),
+          children: [
+            for (int i = 0; i < widget.resources.length; i++)
+              PillarView(
+                headObject: widget.resources[i].head.object,
+                length: widget.resources.length,
+                scrollController: _verticalScrollControllers[i + 1],
+                events: widget.resources[i].events,
+                callBack: (p0, p1) => widget.onTap?.call(p0, p1),
+                doubleCallBack: (p0, p1) => widget.onDoubleTap?.call(p0, p1),
+                longCallBack: (p0, p1) => widget.onLongPress?.call(p0, p1),
+                agendaStyle: widget.agendaStyle,
+                width: widget.resources[i].width,
+              ),
+          ],
         ),
       ),
     );
@@ -436,15 +456,30 @@ class _FlutterAgendaState extends State<FlutterAgenda> {
     if (!mounted) {
       return;
     }
+    // The scrollables may be detached (e.g. the agenda is kept alive but not
+    // laid out inside an Offstage/TabBarView); reading the group offset would
+    // then throw.
+    if (!_verticalScrollLinker.hasAttachedControllers) {
+      return;
+    }
     final totalHours = widget.agendaStyle.endHour - widget.agendaStyle.startHour;
+    if (totalHours <= 0) {
+      return;
+    }
     final totalSeconds = totalHours * 3600;
     final now = DateTime.now();
     final nowSeconds = ((now.hour - widget.agendaStyle.startHour) * 3600) + (now.minute * 60);
+    // Nothing to scroll to when "now" falls outside [startHour, endHour].
+    if (nowSeconds < 0 || nowSeconds > totalSeconds) {
+      return;
+    }
     final agendaHeight = widget.agendaStyle.timeSlot.height * totalHours;
     final currentTimeOffset = agendaHeight * (nowSeconds / totalSeconds);
     final visibleHeight = MediaQuery.of(context).size.height - widget.agendaStyle.headerHeight - widget.agendaStyle.timeSlot.height;
     if ((_verticalScrollLinker.offset + visibleHeight) < currentTimeOffset || _verticalScrollLinker.offset > currentTimeOffset) {
-      _verticalScrollLinker.jumpTo(currentTimeOffset - (visibleHeight / 2));
+      final maxOffset = (agendaHeight - visibleHeight).clamp(0.0, agendaHeight);
+      final target = (currentTimeOffset - (visibleHeight / 2)).clamp(0.0, maxOffset);
+      _verticalScrollLinker.jumpTo(target);
     }
   }
 }

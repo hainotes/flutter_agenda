@@ -32,10 +32,6 @@ class AgendaEvent {
 
   final Color borderColor;
 
-  double left = 0.0;
-
-  double width = 0.0;
-
   final Widget Function(
     AgendaEvent event,
     BuildContext context,

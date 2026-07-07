@@ -25,7 +25,7 @@ class AgendaStyle {
     this.timeItemTextColor = const Color(0xFF7B7B7B),
     this.eventRadius = 5,
     this.timeItemTextStyle = const TextStyle(
-        color: Color(0xFFF999999), fontSize: 11, fontWeight: FontWeight.w300),
+        color: Color(0xFF999999), fontSize: 11, fontWeight: FontWeight.w300),
     this.pillarWidth = 200,
     this.headerHeight = 50,
     this.timeSlot = TimeSlot.half,

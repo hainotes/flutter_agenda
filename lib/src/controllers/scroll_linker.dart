@@ -28,6 +28,10 @@ class ScrollLinker {
 
   late _ScrollLinkerOffsetNotifier _offsetNotifier;
 
+  /// Whether any linked controller is currently attached to a scrollable.
+  /// [offset] and [jumpTo] are only meaningful when this is true.
+  bool get hasAttachedControllers => _attachedControllers.isNotEmpty;
+
   /// The current scroll offset of the group.
   double get offset {
     assert(

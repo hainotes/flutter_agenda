@@ -5,6 +5,12 @@ import 'package:flutter_agenda/src/styles/agenda_style.dart';
 import 'package:flutter_agenda/src/utils/utils.dart';
 
 class BackgroundPainter extends CustomPainter {
+  static const _indicatorLabelStyle = TextStyle(
+    color: Colors.black45,
+    fontSize: 10,
+    fontStyle: FontStyle.italic,
+  );
+
   final AgendaStyle agendaStyle;
   final BuildContext context;
 
@@ -52,11 +58,7 @@ class BackgroundPainter extends CustomPainter {
               0,
               context,
             ),
-            style: TextStyle(
-              color: Colors.black45,
-              fontSize: 10,
-              fontStyle: FontStyle.italic,
-            ),
+            style: _indicatorLabelStyle,
           );
           final textPainter = TextPainter(
             text: hourText,
@@ -104,11 +106,7 @@ class BackgroundPainter extends CustomPainter {
                       : 30,
                   context,
                 ),
-                style: TextStyle(
-                  color: Colors.black45,
-                  fontSize: 10,
-                  fontStyle: FontStyle.italic,
-                ),
+                style: _indicatorLabelStyle,
               );
               final mouseOverHourTextPainter = TextPainter(
                 text: mouseOverHourText,
@@ -121,7 +119,7 @@ class BackgroundPainter extends CustomPainter {
               mouseOverHourTextPainter.paint(
                 canvas,
                 Offset(
-                  (size.width - textPainter.width) / 2,
+                  (size.width - mouseOverHourTextPainter.width) / 2,
                   topOffset + minuteOffset,
                 ),
               );
@@ -153,12 +151,22 @@ class BackgroundPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant BackgroundPainter old) {
-    return agendaStyle.mainBackgroundColor !=
-            old.agendaStyle.mainBackgroundColor ||
-        agendaStyle.timelineBorderColor !=
-            old.agendaStyle.timelineBorderColor ||
-        showHourIndicator() != old.showHourIndicator() ||
-        mouseOverHour() != old.mouseOverHour();
+    // Hover state changes are driven by the [repaint] listenable, not by
+    // shouldRepaint; here we only need to detect style changes. Compare every
+    // style field this painter actually reads.
+    final a = agendaStyle;
+    final b = old.agendaStyle;
+    return a.mainBackgroundColor != b.mainBackgroundColor ||
+        a.timelineBorderColor != b.timelineBorderColor ||
+        a.decorationLineBorderColor != b.decorationLineBorderColor ||
+        a.visibleTimeBorder != b.visibleTimeBorder ||
+        a.visibleDecorationBorder != b.visibleDecorationBorder ||
+        a.timeSlot != b.timeSlot ||
+        a.startHour != b.startHour ||
+        a.endHour != b.endHour ||
+        a.decorationLineHeight != b.decorationLineHeight ||
+        a.decorationLineDashWidth != b.decorationLineDashWidth ||
+        a.decorationLineDashSpaceWidth != b.decorationLineDashSpaceWidth;
   }
 
   double calculateTopOffset(int hour) => hour * agendaStyle.timeSlot.height;

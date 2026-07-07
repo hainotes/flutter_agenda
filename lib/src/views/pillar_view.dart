@@ -52,7 +52,9 @@ class _PillarViewState extends State<PillarView> {
   Timer? _currentTimeMarkerTimer;
 
   // Memoized event-column layout. The expensive packing pass only runs when
-  // [widget.events] changes identity; hover / repaints reuse the cached result.
+  // the event list changes (length or element instances); hover / repaints
+  // reuse the cached result. [_cachedFor] is a snapshot copy so in-place
+  // mutations of the caller's list are detected too.
   List<List<AgendaEvent>>? _cachedCols;
   List<List<int>>? _cachedSpans;
   List<AgendaEvent>? _cachedFor;
@@ -60,10 +62,27 @@ class _PillarViewState extends State<PillarView> {
   @override
   void initState() {
     super.initState();
+    _syncCurrentTimeMarkerTimer();
+  }
+
+  @override
+  void didUpdateWidget(covariant PillarView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.agendaStyle.visibleCurrentTimeMarker !=
+        widget.agendaStyle.visibleCurrentTimeMarker) {
+      _syncCurrentTimeMarkerTimer();
+    }
+  }
+
+  void _syncCurrentTimeMarkerTimer() {
     if (widget.agendaStyle.visibleCurrentTimeMarker) {
-      _currentTimeMarkerTimer = Timer.periodic(Duration(seconds: 60), (timer) {
+      _currentTimeMarkerTimer ??=
+          Timer.periodic(Duration(seconds: 60), (timer) {
         _currentTimeMarkerNotifier.value += 1;
       });
+    } else {
+      _currentTimeMarkerTimer?.cancel();
+      _currentTimeMarkerTimer = null;
     }
   }
 
@@ -205,11 +224,30 @@ class _PillarViewState extends State<PillarView> {
     return widget.agendaStyle.pillarWidth;
   }
 
+  /// Whether the cached layout snapshot still matches the current event list.
+  /// Compares length and element identity, so both replacing the list and
+  /// mutating it in place (add/remove/replace) invalidate the cache.
+  bool _cacheIsFresh() {
+    final cached = _cachedFor;
+    if (cached == null || _cachedCols == null) {
+      return false;
+    }
+    if (cached.length != widget.events.length) {
+      return false;
+    }
+    for (int i = 0; i < cached.length; i++) {
+      if (!identical(cached[i], widget.events[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   /// Packs events into non-overlapping columns and, for each event, computes
-  /// how many subsequent columns it can safely span into. Cached by the
-  /// identity of [widget.events].
+  /// how many subsequent columns it can safely span into. Cached against a
+  /// snapshot of [widget.events].
   void _ensureColumns() {
-    if (identical(_cachedFor, widget.events) && _cachedCols != null) {
+    if (_cacheIsFresh()) {
       return;
     }
     final events = widget.events.toList();
@@ -260,7 +298,8 @@ class _PillarViewState extends State<PillarView> {
 
     _cachedCols = eventCols;
     _cachedSpans = spans;
-    _cachedFor = widget.events;
+    // Snapshot copy: detects in-place mutation of the caller's list.
+    _cachedFor = List<AgendaEvent>.of(widget.events);
   }
 
   /// Resolves the per-event pixel geometry for the given pillar [width] from the

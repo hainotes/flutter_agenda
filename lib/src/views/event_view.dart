@@ -28,6 +28,16 @@ class EventView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Content width available to the event's child: the actual rendered
+    // width resolved by the pillar layout (falling back to the styled pillar
+    // width when no geometry was computed), minus the event's own padding.
+    final contentWidth = math.max(
+        0.0,
+        (width > 0.0 ? width : agendaStyle.pillarWidth) -
+            event.padding.left -
+            event.padding.right);
+    final contentHeight =
+        math.max(0.0, height() - event.padding.top - event.padding.bottom);
     return Positioned(
       top: top(),
       height: height(),
@@ -55,30 +65,14 @@ class EventView extends StatelessWidget {
                 ? event.builder!(
                     event,
                     context,
-                    math.max(
-                        0.0,
-                        height() -
-                            (event.padding.top) -
-                            (event.padding.bottom)),
-                    math.max(
-                        0.0,
-                        agendaStyle.pillarWidth -
-                            (event.padding.left) -
-                            (event.padding.right)),
+                    contentHeight,
+                    contentWidth,
                   )
                 : (Utils.eventText)(
                     event,
                     context,
-                    math.max(
-                        0.0,
-                        height() -
-                            (event.padding.top) -
-                            (event.padding.bottom)),
-                    math.max(
-                        0.0,
-                        agendaStyle.pillarWidth -
-                            (event.padding.left) -
-                            (event.padding.right)),
+                    contentHeight,
+                    contentWidth,
                   ),
           ),
         ),

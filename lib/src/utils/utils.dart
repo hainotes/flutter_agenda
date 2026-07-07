@@ -18,21 +18,9 @@ class Utils {
     double screenWidth = MediaQuery.of(context).size.width;
     switch (orientation) {
       case Orientation.portrait:
-        if (screenWidth < 480 && length < 4) {
-          return (screenWidth - timeWidth) / length;
-        } else if (length < 8) {
-          return (screenWidth - timeWidth) / length;
-        } else {
-          return defaultWidth;
-        }
+        return length < 8 ? (screenWidth - timeWidth) / length : defaultWidth;
       case Orientation.landscape:
-        if (screenWidth < 480 && length < 6) {
-          return (screenWidth - timeWidth) / length;
-        } else if (length < 12) {
-          return (screenWidth - timeWidth) / length;
-        } else {
-          return defaultWidth;
-        }
+        return length < 12 ? (screenWidth - timeWidth) / length : defaultWidth;
     }
   }
 
