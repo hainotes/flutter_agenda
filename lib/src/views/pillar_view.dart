@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_agenda/flutter_agenda.dart';
 import 'package:flutter_agenda/src/styles/background_painter.dart';
 import 'package:flutter_agenda/src/styles/current_time_marker_painter.dart';
+import 'package:flutter_agenda/src/utils/scroll_config.dart';
 import 'package:flutter_agenda/src/utils/utils.dart';
 import 'package:flutter_agenda/src/views/event_view.dart';
 
@@ -99,108 +100,124 @@ class _PillarViewState extends State<PillarView> {
   Widget build(BuildContext context) {
     final width = _resolveWidth(context);
     final geometry = _computeGeometry(width);
-    return SingleChildScrollView(
-      controller: widget.scrollController,
-      physics: ClampingScrollPhysics(),
-      child: MouseRegion(
-        onEnter: (event) {
-          _showHourIndicator.value = true;
-          _mouseOverHour.value = tappedHour(
-            event.localPosition.dy,
-            widget.agendaStyle.timeSlot.height,
-            widget.agendaStyle.startHour,
-          );
-        },
-        onExit: (event) {
-          _showHourIndicator.value = false;
-          _mouseOverHour.value = null;
-        },
-        onHover: (event) {
-          final hovered = tappedHour(
-            event.localPosition.dy,
-            widget.agendaStyle.timeSlot.height,
-            widget.agendaStyle.startHour,
-          );
-          final current = _mouseOverHour.value;
-          if (current == null ||
-              hovered.hour != current.hour ||
-              hovered.minute != current.minute) {
-            _mouseOverHour.value = hovered;
-          }
-        },
-        child: GestureDetector(
-          onTapDown: (tapdetails) {
-            _tappedHour = tappedHour(tapdetails.localPosition.dy, widget.agendaStyle.timeSlot.height, widget.agendaStyle.startHour);
-            _tappedObject = widget.headObject;
+    return ScrollConfiguration(
+      behavior: const NoGlowScroll(),
+      child: SingleChildScrollView(
+        controller: widget.scrollController,
+        physics: ClampingScrollPhysics(),
+        child: MouseRegion(
+          onEnter: (event) {
+            _showHourIndicator.value = true;
+            _mouseOverHour.value = tappedHour(
+              event.localPosition.dy,
+              widget.agendaStyle.timeSlot.height,
+              widget.agendaStyle.startHour,
+            );
           },
-          onTap: () {
-            if (_tappedHour != null) {
-              widget.callBack?.call(_tappedHour!, _tappedObject);
+          onExit: (event) {
+            _showHourIndicator.value = false;
+            _mouseOverHour.value = null;
+          },
+          onHover: (event) {
+            final hovered = tappedHour(
+              event.localPosition.dy,
+              widget.agendaStyle.timeSlot.height,
+              widget.agendaStyle.startHour,
+            );
+            final current = _mouseOverHour.value;
+            if (current == null ||
+                hovered.hour != current.hour ||
+                hovered.minute != current.minute) {
+              _mouseOverHour.value = hovered;
             }
           },
-          onDoubleTapDown: (details) {
-            _tappedHour = tappedHour(details.localPosition.dy, widget.agendaStyle.timeSlot.height, widget.agendaStyle.startHour);
-            _tappedObject = widget.headObject;
-          },
-          onDoubleTap: () {
-            if (_tappedHour != null) {
-              widget.doubleCallBack?.call(_tappedHour!, _tappedObject);
-            }
-          },
-          onLongPressDown: (details) {
-            _tappedHour = tappedHour(details.localPosition.dy, widget.agendaStyle.timeSlot.height, widget.agendaStyle.startHour);
-            _tappedObject = widget.headObject;
-          },
-          onLongPress: () {
-            if (_tappedHour != null) {
-              widget.longCallBack?.call(_tappedHour!, _tappedObject);
-            }
-          },
-          child: Container(
-            height: height(),
-            width: width,
-            decoration:
-                widget.agendaStyle.pillarSeperator ? BoxDecoration(border: Border(left: BorderSide(color: Color(0xFFCECECE)))) : BoxDecoration(),
-            child: Stack(
-              children: [
-                ...[
-                  Positioned.fill(
-                    child: CustomPaint(
-                      painter: BackgroundPainter(
-                        agendaStyle: widget.agendaStyle,
-                        context: context,
-                        repaint: _backgroundRepaint,
-                        showHourIndicator: () =>
-                            _showHourIndicator.value && widget.headObject != null,
-                        mouseOverHour: () => _mouseOverHour.value,
+          child: GestureDetector(
+            onTapDown: (tapdetails) {
+              _tappedHour = tappedHour(
+                  tapdetails.localPosition.dy,
+                  widget.agendaStyle.timeSlot.height,
+                  widget.agendaStyle.startHour);
+              _tappedObject = widget.headObject;
+            },
+            onTap: () {
+              if (_tappedHour != null) {
+                widget.callBack?.call(_tappedHour!, _tappedObject);
+              }
+            },
+            onDoubleTapDown: (details) {
+              _tappedHour = tappedHour(
+                  details.localPosition.dy,
+                  widget.agendaStyle.timeSlot.height,
+                  widget.agendaStyle.startHour);
+              _tappedObject = widget.headObject;
+            },
+            onDoubleTap: () {
+              if (_tappedHour != null) {
+                widget.doubleCallBack?.call(_tappedHour!, _tappedObject);
+              }
+            },
+            onLongPressDown: (details) {
+              _tappedHour = tappedHour(
+                  details.localPosition.dy,
+                  widget.agendaStyle.timeSlot.height,
+                  widget.agendaStyle.startHour);
+              _tappedObject = widget.headObject;
+            },
+            onLongPress: () {
+              if (_tappedHour != null) {
+                widget.longCallBack?.call(_tappedHour!, _tappedObject);
+              }
+            },
+            child: Container(
+              height: height(),
+              width: width,
+              decoration: widget.agendaStyle.pillarSeperator
+                  ? BoxDecoration(
+                      border:
+                          Border(left: BorderSide(color: Color(0xFFCECECE))))
+                  : BoxDecoration(),
+              child: Stack(
+                children: [
+                  ...[
+                    Positioned.fill(
+                      child: CustomPaint(
+                        painter: BackgroundPainter(
+                          agendaStyle: widget.agendaStyle,
+                          context: context,
+                          repaint: _backgroundRepaint,
+                          showHourIndicator: () =>
+                              _showHourIndicator.value &&
+                              widget.headObject != null,
+                          mouseOverHour: () => _mouseOverHour.value,
+                        ),
                       ),
                     ),
-                  ),
-                  if (widget.headObject != null)
-                    ValueListenableBuilder(
-                      valueListenable: _currentTimeMarkerNotifier,
-                      builder: (context, value, child) {
-                        return Positioned.fill(
-                          child: CustomPaint(
-                            painter: CurrentTimeMarkerPainter(
-                              agendaStyle: widget.agendaStyle,
+                    if (widget.headObject != null)
+                      ValueListenableBuilder(
+                        valueListenable: _currentTimeMarkerNotifier,
+                        builder: (context, value, child) {
+                          return Positioned.fill(
+                            child: CustomPaint(
+                              painter: CurrentTimeMarkerPainter(
+                                agendaStyle: widget.agendaStyle,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                          );
+                        },
+                      ),
+                  ],
+                  ...widget.events.map((event) {
+                    final g = geometry[event];
+                    return EventView(
+                      event: event,
+                      length: widget.length,
+                      agendaStyle: widget.agendaStyle,
+                      left: g?.left ?? 0.0,
+                      width: g?.width ?? 0.0,
+                    );
+                  }),
                 ],
-                ...widget.events.map((event) {
-                  final g = geometry[event];
-                  return EventView(
-                    event: event,
-                    length: widget.length,
-                    agendaStyle: widget.agendaStyle,
-                    left: g?.left ?? 0.0,
-                    width: g?.width ?? 0.0,
-                  );
-                }),
-              ],
+              ),
             ),
           ),
         ),
@@ -282,10 +299,13 @@ class _PillarViewState extends State<PillarView> {
         int span = 0;
         // Extend across later columns only while every later column is free of
         // overlap; stop at the first column that actually overlaps this event.
-        for (int nextColIndex = colIndex + 1; nextColIndex < eventCols.length; nextColIndex++) {
+        for (int nextColIndex = colIndex + 1;
+            nextColIndex < eventCols.length;
+            nextColIndex++) {
           final nextCol = eventCols[nextColIndex];
           final noOverlap = nextCol.every((nextEvent) =>
-              nextEvent.start.compareTo(e.end) >= 0 || nextEvent.end.compareTo(e.start) <= 0);
+              nextEvent.start.compareTo(e.end) >= 0 ||
+              nextEvent.end.compareTo(e.start) <= 0);
           if (!noOverlap) {
             break;
           }
@@ -304,7 +324,8 @@ class _PillarViewState extends State<PillarView> {
 
   /// Resolves the per-event pixel geometry for the given pillar [width] from the
   /// memoized column layout. O(events); no model mutation.
-  Map<AgendaEvent, ({double left, double width})> _computeGeometry(double width) {
+  Map<AgendaEvent, ({double left, double width})> _computeGeometry(
+      double width) {
     _ensureColumns();
     final geometry = <AgendaEvent, ({double left, double width})>{};
     final cols = _cachedCols!;
@@ -347,6 +368,7 @@ class _PillarViewState extends State<PillarView> {
   }
 
   double height() {
-    return (widget.agendaStyle.endHour - widget.agendaStyle.startHour) * widget.agendaStyle.timeSlot.height;
+    return (widget.agendaStyle.endHour - widget.agendaStyle.startHour) *
+        widget.agendaStyle.timeSlot.height;
   }
 }
